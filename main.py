@@ -32,10 +32,11 @@ from torch.utils.data.distributed import DistributedSampler
 from torch.utils.tensorboard import SummaryWriter
 from utils import imutils
 from utils.utils import AverageMeter
-torch.cuda.set_per_process_memory_fraction(0.8, 0)
+
 
 # Prevent memory fragmentation issues
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:128"
+torch.cuda.set_per_process_memory_fraction(0.75, 0)
 # argment parser
 parser = argparse.ArgumentParser()
 parser.add_argument("--config",
@@ -273,7 +274,10 @@ def train(opts):
         print("-----------------------------------------------")
     
     model = model.to(device)
-    model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)
+    if torch.cuda.device_count() > 1:
+        model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[min(local_rank, len(opts.gpu_ids) - 1)]], find_unused_parameters=True)
+    else:
+        model = model.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))  # Run on a single GPU
     model.train()
    
     dataset_dict = get_dataset(opts)
