@@ -1,8 +1,9 @@
+mkdir data_root
 cd data_root
 
 wget http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
 tar -xf VOCtrainval_11-May-2012.tar
-gdown 1ECQRCYKWdZSsdzvAtYUXXExxQWcRySvo
+gdown 12zZ_CMlNhCJSRVbADOZHNLADK8iRTKVp
 wget http://cs.jhu.edu/~cxliu/data/SegmentationClassAug_Visualization.zip
 wget http://cs.jhu.edu/~cxliu/data/list.zip
 rm VOCtrainval_11-May-2012.tar
