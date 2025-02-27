@@ -33,10 +33,6 @@ from torch.utils.tensorboard import SummaryWriter
 from utils import imutils
 from utils.utils import AverageMeter
 
-
-# Prevent memory fragmentation issues
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:128"
-torch.cuda.set_per_process_memory_fraction(0.75, 0)
 # argment parser
 parser = argparse.ArgumentParser()
 parser.add_argument("--config",
@@ -146,7 +142,7 @@ def validate(opts, model, loader, device, metrics):
 # train function
 def train(opts):
     writer = SummaryWriter('runs/'+ str(args.log))
-    num_workers = 2
+    num_workers = 4 * len(opts.gpu_ids)
     
     time0 = datetime.datetime.now()
     time0 = time0.replace(microsecond=0)
@@ -274,10 +270,7 @@ def train(opts):
         print("-----------------------------------------------")
     
     model = model.to(device)
-    if torch.cuda.device_count() > 1:
-        model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[min(local_rank, len(opts.gpu_ids) - 1)]], find_unused_parameters=True)
-    else:
-        model = model.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))  # Run on a single GPU
+    model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)
     model.train()
    
     dataset_dict = get_dataset(opts)
@@ -287,7 +280,7 @@ def train(opts):
         dataset_dict['train'], 
         batch_size=opts.dataset.batch_size,
         sampler=train_sampler,  
-        num_workers=2, 
+        num_workers=num_workers, 
         pin_memory=True, 
         drop_last=True, 
         prefetch_factor=4)
@@ -486,13 +479,7 @@ if __name__ == "__main__":
     start_step = opts.curr_step
     total_step = len(get_tasks(opts.dataset.name, opts.task))
 
-
-    local_rank = int(os.environ.get("LOCAL_RANK", 0))  # Get local rank safely
-
-# Prevent index error if only one GPU is available
-    gpu_id = opts.gpu_ids[min(local_rank, len(opts.gpu_ids) - 1)]
-    torch.cuda.set_device(gpu_id)
-
+    torch.cuda.set_device(opts.gpu_ids[args.local_rank])
     dist.init_process_group(backend=args.backend,)
     for step in range(start_step, total_step):
         opts.curr_step = step
