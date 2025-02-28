@@ -26,6 +26,7 @@ from datasets import ADESegmentation
 from core import Segmenter
 
 import torch.distributed as dist
+
 from torch.nn.parallel import DistributedDataParallel
 from torch.utils.data.distributed import DistributedSampler
 
@@ -33,6 +34,8 @@ from torch.utils.tensorboard import SummaryWriter
 from utils import imutils
 from utils.utils import AverageMeter
 
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:128"
+torch.cuda.set_per_process_memory_fraction(0.8, 0)
 # argment parser
 parser = argparse.ArgumentParser()
 parser.add_argument("--config",
@@ -142,7 +145,7 @@ def validate(opts, model, loader, device, metrics):
 # train function
 def train(opts):
     writer = SummaryWriter('runs/'+ str(args.log))
-    num_workers = 4 * len(opts.gpu_ids)
+    num_workers = 2
     
     time0 = datetime.datetime.now()
     time0 = time0.replace(microsecond=0)
@@ -270,7 +273,12 @@ def train(opts):
         print("-----------------------------------------------")
     
     model = model.to(device)
-    model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)
+    if torch.cuda.device_count() > 1:
+        model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)
+        print("Running DistributedDataParallel with multiple GPUs.")
+    else:
+        print("Single GPU detected. Using normal DataParallel instead of DistributedDataParallel.")
+    model = torch.nn.DataParallel(model)  # Use DataParallel instead
     model.train()
    
     dataset_dict = get_dataset(opts)
@@ -280,10 +288,10 @@ def train(opts):
         dataset_dict['train'], 
         batch_size=opts.dataset.batch_size,
         sampler=train_sampler,  
-        num_workers=num_workers, 
-        pin_memory=True, 
+        num_workers=1, 
+        pin_memory=False, 
         drop_last=True, 
-        prefetch_factor=4)
+        prefetch_factor=2)
     val_loader = data.DataLoader(
         dataset_dict['val'], batch_size=opts.dataset.val_batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
     test_loader = data.DataLoader(
@@ -463,6 +471,11 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     opts = OmegaConf.load(args.config)
+    if torch.cuda.device_count() < 2:
+        print("Single GPU detected. Disabling distributed training.")
+        args.local_rank = 0  # Ensure local_rank is defined
+        import torch.distributed as dist
+        dist.destroy_process_group = lambda: None  # Prevent errors when calling dist.destroy_process_group()
     random.seed(opts.random_seed)
     np.random.seed(opts.random_seed)
     torch.manual_seed(opts.random_seed)
@@ -478,6 +491,18 @@ if __name__ == "__main__":
 
     start_step = opts.curr_step
     total_step = len(get_tasks(opts.dataset.name, opts.task))
+
+    # Ensure only valid GPU indices are used
+    valid_gpus = list(range(torch.cuda.device_count()))
+    opts.gpu_ids = [gpu for gpu in opts.gpu_ids if gpu in valid_gpus]
+
+    if len(opts.gpu_ids) == 0:
+        print("No valid GPUs available. Exiting...")
+        exit(1)
+
+    if args.local_rank >= len(opts.gpu_ids):
+        print(f"Invalid local_rank {args.local_rank}, setting to 0")
+        args.local_rank = 0
 
     torch.cuda.set_device(opts.gpu_ids[args.local_rank])
     dist.init_process_group(backend=args.backend,)
