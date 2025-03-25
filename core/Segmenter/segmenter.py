@@ -55,26 +55,52 @@ class Segmenter(nn.Module):
     
     def get_masks(self):
         return self.masks
-    
-    def forward(self, im):
+## Change
+
+  #  def forward(self, im):
+  #       H_ori, W_ori = im.size(2), im.size(3)
+   #      im = padding(im, self.patch_size)
+   #      H, W = im.size(2), im.size(3)
+ #
+    #     x = self.encoder(im, return_feature=False)
+        
+    #     num_extra_tokens = 1 + self.encoder.distilled
+     #    x = x[:, num_extra_tokens:]
+
+     #    masks = self.decoder(x, (H, W))
+    #     self.masks = masks
+    #     patches, cls_seg_feat, cls_token = self.decoder.return_feats()
+        
+    #     masks = F.interpolate(masks, size=(H, W), mode="bilinear")
+    #     masks = unpadding(masks, (H_ori, W_ori))
+        
+     #    return masks, patches, cls_seg_feat, cls_token
+
+# Trong file segmenter.py của MBS
+    def forward(self, im, ret_intermediate=False):
         H_ori, W_ori = im.size(2), im.size(3)
         im = padding(im, self.patch_size)
         H, W = im.size(2), im.size(3)
 
-        x = self.encoder(im, return_feature=False)
-        
+        x, features = self.encoder(im, return_feature=True)  # features là stack của các layer outputs
         num_extra_tokens = 1 + self.encoder.distilled
-        x = x[:, num_extra_tokens:]
+        pre_logits = x[:, num_extra_tokens:]  # Loại bỏ cls_token và dist_token
 
-        masks = self.decoder(x, (H, W))
+        masks = self.decoder(pre_logits, (H, W))
         self.masks = masks
         patches, cls_seg_feat, cls_token = self.decoder.return_feats()
         
         masks = F.interpolate(masks, size=(H, W), mode="bilinear")
         masks = unpadding(masks, (H_ori, W_ori))
         
+        if ret_intermediate:
+            return masks, {
+                "patches": patches,
+                "cls_seg_feat": cls_seg_feat,
+                "cls_token": cls_token,
+                "pre_logits": pre_logits  # Trả về pre_logits cho NeST
+            }
         return masks, patches, cls_seg_feat, cls_token
-
 # if __name__ == '__main__':
 #     model = Segmenter(backbone='vit_b_16', num_classes=21,
 #                 pretrained=True)
