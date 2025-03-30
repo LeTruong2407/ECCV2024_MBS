@@ -40,6 +40,11 @@ pip install -U openmim
 mim install mmcv
 pip install setuptools==59.5.0
 ```
+
+## Model Step 0 
+```
+sh model.sh
+```
 ## Datasets
 ```
 data_root/
