@@ -1,0 +1,2 @@
+mkdir checkpoints
+gdown 1kVRDzwB9ygrAJfTCqclOGUAA8fArfzH2
