@@ -1,6 +1,6 @@
 overlap: True
 random_seed: 1
-curr_step: 0
+curr_step: 1
 task: 10-1
 gpu_ids: [0, 1]
 ckpt: None
@@ -19,12 +19,12 @@ train:
   
 dataset:
   name: voc
-  data_root: /dataset/VOC2012
+  data_root: /root/ECCV2024_MBS/data_root/VOCdevkit/VOC2012
   crop_size: 512
   resize_range: [512, 2048]
   rescale_range: [0.5, 2.0]
   ignore_index: 255
-  batch_size: 8
+  batch_size: 4
   val_batch_size: 4
 
 optimizer:
