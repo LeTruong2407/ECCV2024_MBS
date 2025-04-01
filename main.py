@@ -170,7 +170,7 @@ def pre_tune_neST(opts, model, model_prev, train_loader, device, epochs=5):
     for param in nest_params:
         param.requires_grad = True
 
-    optimizer = torch.optim.SGD(nest_params, lr=opts.optimizer.learning_rate * 0.1)
+    optimizer = torch.optim.SGD(nest_params, lr=opts.optimizer.learning_rate*0.1)
 
     # Get class indices (accounting for [1, 15, 1, ...] format)
     n_old = sum(opts.num_classes[:-1])  # Background + all old classes
@@ -228,7 +228,7 @@ def pre_tune_neST(opts, model, model_prev, train_loader, device, epochs=5):
 
 # train function
 def train(opts):
-    writer = SummaryWriter('runs/'+ str(args.log))
+    writer = SummaryWriter('runs/' + str(args.log))
     num_workers = 4 * len(opts.gpu_ids)
     
     time0 = datetime.datetime.now()
@@ -249,18 +249,17 @@ def train(opts):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     bg_label = 0
     
-    if args.local_rank==0:
+    if args.local_rank == 0:
         print("==============================================")
         print(f"  task : {opts.task}")
         print(f"  step : {opts.curr_step}")
         print("  Device: %s" % device)
-        print( "  opts : ")
+        print("  opts : ")
         print(opts)
         print("==============================================")
 
-    # Initialize the model with the specified backbone and number of classes
-    model = Segmenter(backbone=opts.train.backbone, num_classes=opts.num_classes,
-                pretrained=True)
+    # Initialize the model
+    model = Segmenter(backbone=opts.train.backbone, num_classes=opts.num_classes, pretrained=True)
     model = model.to(device)  # Move to device before pre-tuning
 
     dataset_dict = get_dataset(opts)
@@ -279,18 +278,19 @@ def train(opts):
         dataset_dict['test'], batch_size=opts.dataset.val_batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
     
     if opts.curr_step > 0:
-        """ load previous model """
+        """Load previous model"""
         model_prev = Segmenter(
             backbone=opts.train.backbone,
-            num_classes=list(opts.num_classes)[:-1],  # Exclude current step's new classes
+            num_classes=list(opts.num_classes)[:-1],  # [1, 10] for step 0
             pretrained=True
         )
         model_prev = model_prev.to(device)
 
-        # Load checkpoint from previous step (adjust path as needed)
-        checkpoint_path = "checkpoints/vit_b_16_voc_15-1_step_0_overlap.pth"  # Example path
+        checkpoint_path = "checkpoints/vit_b_16_voc_10-1_step_0_overlap.pth"
         checkpoint = torch.load(checkpoint_path, map_location=device)
-        model_prev.load_state_dict(checkpoint, strict=False)  # Use strict=False for missing NeST params
+        if args.local_rank == 0:
+            print("Checkpoint keys:", list(checkpoint.keys()))
+        model_prev.load_state_dict(checkpoint, strict=False)
         model_prev.eval()
 
         print(f"=> NeST pre-tuning for new classes at step {opts.curr_step}")
@@ -300,13 +300,20 @@ def train(opts):
             model_prev=model_prev,
             train_loader=train_loader,
             device=device,
-            epochs=1
+            epochs=5
         )
+
+        # Unfreeze parameters for main training after pre-tuning
+        for param in model.parameters():
+            param.requires_grad = True  # Unfreeze all for full training
+
     else:
         model_prev = None
 
+    # DDP wrapping after pre-tuning
     model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)
     model.train()
+
     # Define param_groups after DDP wrapping
     nest_params = []
     if opts.curr_step > 0:
@@ -316,16 +323,14 @@ def train(opts):
             [model.module.decoder.M0, model.module.decoder.P0]
         )
 
-    # Define param_groups
+    # Define param_groups (now includes all trainable parameters)
     param_groups = [
         {"params": model.module.encoder.parameters(), "lr": opts.optimizer.learning_rate},
         {"params": [p for p in model.module.decoder.parameters() 
-                    if not any(id(p) == id(nest_p) for nest_p in nest_params)],  # Exclude NeST params
+                    if not any(id(p) == id(nest_p) for nest_p in nest_params)], 
          "lr": opts.optimizer.learning_rate}
     ]
-
-    # Add NeST params if they exist
-    if nest_params:  # Only append if nest_params is non-empty (i.e., curr_step > 0)
+    if nest_params:
         param_groups.append({
             "params": nest_params,
             "lr": opts.optimizer.learning_rate * 0.1  # Lower LR for NeST
@@ -342,7 +347,7 @@ def train(opts):
             "best_score": best_score,
         }, path)
         
-        if args.local_rank==0:
+        if args.local_rank == 0:
             print("Model saved as %s" % path)
 
     utils.mkdir('checkpoints')    
@@ -355,62 +360,73 @@ def train(opts):
     else:
         ckpt_str = "checkpoints/%s_%s_%s_step_%d_disjoint.pth"
     
-    # model load from checkpoint if opts_curr_step == 0 
-    if opts.curr_step==0 and (opts.ckpt is not None and os.path.isfile(opts.ckpt)):
+    # Model load from checkpoint if opts_curr_step == 0 
+    if opts.curr_step == 0 and (opts.ckpt is not None and os.path.isfile(opts.ckpt)):
         checkpoint = torch.load(opts.ckpt, map_location=torch.device('cpu'))["model_state"]
-        model.load_state_dict(checkpoint, strict=True)
+        model.module.load_state_dict(checkpoint, strict=True)
         
-        if args.local_rank==0:
-                print("Curr_step is zero. Model restored from %s" % opts.ckpt)
+        if args.local_rank == 0:
+            print("Curr_step is zero. Model restored from %s" % opts.ckpt)
         del checkpoint  # free memory
     
-    # model load from checkpoint if opts_curr_step > 0
+# Model load from checkpoint if opts_curr_step > 0
     if opts.curr_step > 0:
         opts.ckpt = ckpt_str % (opts.train.backbone, opts.dataset.name, opts.task, opts.curr_step-1)
     
         if opts.ckpt is not None and os.path.isfile(opts.ckpt):
             checkpoint = torch.load(opts.ckpt, map_location=torch.device('cpu'))["model_state"]
+            if args.local_rank == 0:
+                print("Checkpoint keys (model_state):", list(checkpoint.keys()))
             model_prev.load_state_dict(checkpoint, strict=False)         
             
-            # Transfer the background class token if weight transfer is enabled
             if opts.train.weight_transfer:
-                curr_head_num = len(model.decoder.cls_emb) - 1
-                class_token_param = model.state_dict()[f"decoder.cls_emb.{curr_head_num}"]
-                for i in range(opts.num_classes[-1]):
-                    class_token_param[:, i] = checkpoint["decoder.cls_emb.0"]
+                curr_head_num = len(model.module.decoder.cls_emb) - 1
+                class_token_param = model.module.state_dict()[f"decoder.cls_emb.{curr_head_num}"]
+                if "decoder.cls_emb.0" in checkpoint:
+                    for i in range(opts.num_classes[-1]):
+                        class_token_param[:, i] = checkpoint["decoder.cls_emb.0"]
+                elif "module.decoder.cls_emb.0" in checkpoint:  # Adjust for DDP prefix
+                    for i in range(opts.num_classes[-1]):
+                        class_token_param[:, i] = checkpoint["module.decoder.cls_emb.0"]
+                elif "decoder.cls_emb" in checkpoint:
+                    bg_token = checkpoint["decoder.cls_emb"][:, 0, :]
+                    for i in range(opts.num_classes[-1]):
+                        class_token_param[:, i] = bg_token.squeeze(0)
+                else:
+                    if args.local_rank == 0:
+                        print("Warning: No suitable 'decoder.cls_emb' key found in checkpoint, skipping weight transfer")
                         
                 checkpoint[f"decoder.cls_emb.{curr_head_num}"] = class_token_param
                     
-            model.load_state_dict(checkpoint, strict=False)
+            model.module.load_state_dict(checkpoint, strict=False)
                 
-            if args.local_rank==0:
+            if args.local_rank == 0:
                 print("Model restored from %s" % opts.ckpt)
-            del checkpoint  # free memory
+            del checkpoint
         else:
-            if args.local_rank==0:
+            if args.local_rank == 0:
                 print("[!] Retrain")
-    
+
     if opts.curr_step > 0:
         model_prev.to(device)
         model_prev.eval()
-    
         for param in model_prev.parameters():
             param.requires_grad = False
                 
-    if args.local_rank==0 and opts.curr_step>0:
+    if args.local_rank == 0:
         print("----------- trainable parameters --------------")
         for name, param in model.named_parameters():
             if param.requires_grad:
                 print(name, param.shape)
         print("-----------------------------------------------")
-    
-    model = model.to(device)
-    model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)
-    model.train()
-    
-    if args.local_rank==0:
+    # Ensure model is on device and in train mode after DDP (already done, but redundant calls removed)
+    # model = model.to(device)  # Remove this redundant line
+    # model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)  # Remove this redundant line
+    # model.train()  # Remove this redundant line
+
+    if args.local_rank == 0:
         print("Dataset: %s, Train set: %d, Val set: %d, Test set: %d" %
-        (opts.dataset.name, len(dataset_dict['train']), len(dataset_dict['val']), len(dataset_dict['test'])))
+              (opts.dataset.name, len(dataset_dict['train']), len(dataset_dict['val']), len(dataset_dict['test'])))
     
     max_iters = opts.train.train_epochs * len(train_loader)
     val_interval = max(100, max_iters // 10)
@@ -418,27 +434,15 @@ def train(opts):
 
     train_sampler.set_epoch(0)
             
-    if args.local_rank==0:
+    if args.local_rank == 0:
         print(f"... train epoch : {opts.train.train_epochs} , iterations : {max_iters} , val_interval : {val_interval}")
-    # Create a GradScaler for automatic mixed precision (AMP) training
+    
     scaler = torch.cuda.amp.GradScaler(enabled=opts.amp)
-    # Set up the loss function based on the configuration
     if opts.train.loss_type == 'bce_loss':
         criterion = utils.BCEWithLogitsLossWithIgnoreIndex(ignore_index=opts.dataset.ignore_index, 
                                                            reduction='mean')
     elif opts.train.loss_type == 'ce_loss':                                                                                                                                                                                                                                                                       
         criterion = torch.nn.CrossEntropyLoss(ignore_index=opts.dataset.ignore_index, reduction='mean')
-    
-    # Set up additional loss functions for MBS if enabled
-    # if opts.train.MBS == True:
-    #     # Separating Background-Class - output distillation, orthogonal loss
-    #     od_loss = utils.LabelGuidedOutputDistillation(reduction="mean", alpha=1.0).to(device)
-    #     ortho_loss = utils.OtrthogonalLoss(reduction="mean", classes=target_cls).to(device)
-    # else:
-    #     od_loss = utils.KnowledgeDistillationLoss(reduction="mean", alpha=1.0).to(device)
-    #     ortho_loss = None
-    # # Adaptive Feature Distillation
-    # fd_loss = utils.AdaptiveFeatureDistillation(reduction="mean", alpha=1).to(device)
 
     if opts.train.MBS:
         fd_loss = utils.AdaptiveFeatureDistillation(reduction="mean", alpha=1).to(device)
@@ -449,6 +453,7 @@ def train(opts):
     cur_epochs = 0
     avg_loss = AverageMeter()
     
+    # Rest of your training loop (unchanged)
     for n_iter in range(max_iters):
         try:
             inputs, labels, _ = next(train_loader_iter)
@@ -482,7 +487,6 @@ def train(opts):
                     labels
                 )
 
-                # AFD only (no od_loss or ortho_loss)
                 HW = int(math.sqrt(patches.shape[1]))
                 label_temp = F.interpolate(labels.unsqueeze(1).float(), size=(HW, HW), mode='nearest').squeeze(1)
                 pred_score_mask = utils.make_scoremap(
@@ -494,49 +498,6 @@ def train(opts):
             seg_loss = criterion(outputs, labels.type(torch.long))
             loss_total = seg_loss + lfd
 
-            # if opts.curr_step > 0:
-            #     with torch.no_grad():
-            #         outputs_prev, patches_prev, cls_seg_feat_prev, _ = model_prev(inputs)
-            #         if opts.train.loss_type == 'bce_loss':
-            #             pred_prob = torch.sigmoid(outputs_prev).detach()
-            #         else:
-            #             pred_prob = torch.softmax(outputs_prev, 1).detach()
-                
-            #     pred_scores, pred_labels = torch.max(pred_prob, dim=1)
-            #     labels = torch.where((labels <= bg_label) & (pred_labels > bg_label) & (pred_scores >= opts.train.pseudo_thresh), 
-            #                             pred_labels, 
-            #                             labels)
-                
-            #     if opts.train.MBS:
-            #         object_scores = torch.zeros(pred_prob.shape[0], 2, pred_prob.shape[2], pred_prob.shape[3]).to(device)
-            #         object_scores[:, 0] = pred_prob[:, 0]
-            #         object_scores[:, 1] = torch.sum(pred_prob[:, 1:], dim=1)
-            #         labels = torch.where((labels == 0) & (object_scores[:, 0] < object_scores[:, 1]), 
-            #                                     opts.dataset.ignore_index, 
-            #                                     labels)
-                    
-            #     if opts.train.MBS:
-            #         with torch.no_grad():
-            #             mask_origin = model_prev.get_masks()
-            #         HW = int(math.sqrt(patches.shape[1]))
-            #         label_temp = F.interpolate(labels.unsqueeze(1).float(), size=(HW, HW), mode='nearest').squeeze(1)
-            #         pred_score_mask = utils.make_scoremap(mask_origin, label_temp, target_cls, bg_label, ignore_index=opts.dataset.ignore_index)
-            #         pred_scoremap = pred_score_mask.squeeze().reshape(-1, HW*HW)
-            #         lfd_patches = fd_loss(patches.unsqueeze(1), patches_prev.unsqueeze(1), weights=pred_scoremap.unsqueeze(-1).unsqueeze(1))
-            #     else:
-            #         lfd_patches = fd_loss(patches, patches_prev, weights=1)
-                    
-            #     lfd = lfd_patches + fd_loss(cls_seg_feat[:,:-len(target_cls)], cls_seg_feat_prev, weights=1)
-
-            #     if opts.train.MBS:
-            #         lod = od_loss(outputs, outputs_prev, origin_labels) * opts.train.distill_args + ortho_loss(cls_token, weight=opts.num_classes[-1]/sum(opts.num_classes))
-            #     else:
-            #         lod = od_loss(outputs, outputs_prev) * opts.train.distill_args      
-                
-            # seg_loss = criterion(outputs, labels.type(torch.long))
-            
-            # loss_total = seg_loss + lfd + lod
-                
         scaler.scale(loss_total).backward()
         scaler.step(optimizer)
         avg_loss.update(loss_total.item())
