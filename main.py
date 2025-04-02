@@ -39,9 +39,13 @@ parser.add_argument("--config",
                     default='./configs/voc.yaml',
                     type=str,
                     help="config")
-parser.add_argument("--local_rank", default=-1, type=int, help="local_rank")
+parser.add_argument("--local_rank", default=-1, type=int, help="local_rank")  # Keep for compatibility, but won't be used with torchrun
 parser.add_argument('--log', default='test.log')
 parser.add_argument('--backend', default='nccl')
+
+args = parser.parse_args()
+# Override local_rank with environment variable if available
+args.local_rank = int(os.environ.get('LOCAL_RANK', args.local_rank))
 
 # calculate eta
 def cal_eta(time0, cur_iter, total_iter):
@@ -112,7 +116,7 @@ def get_dataset(opts):
     dataset_dict['test'] = dataset(opts=opts, image_set='test', transform=val_transform, cil_step=opts.curr_step)
     
     return dataset_dict
-
+'''
 # validate function
 def validate(opts, model, loader, device, metrics):
     """Do validation and return specified samples"""
@@ -138,7 +142,32 @@ def validate(opts, model, loader, device, metrics):
         score = metrics.get_results()
         
     return score
-
+'''
+def validate(opts, model, loader, device, metrics):
+    metrics.reset()
+    with torch.no_grad():
+        if args.local_rank == 0:
+            print("Validation cls_emb check:")
+            for i, emb in enumerate(model.decoder.cls_emb if not hasattr(model, 'module') else model.module.decoder.cls_emb):
+                print(f"cls_emb[{i}]: {emb.shape}, sample_values={emb[0, 0, :5]}")
+        for i, (images, labels, _) in enumerate(loader):
+            images = images.to(device, dtype=torch.float32, non_blocking=True)
+            labels = labels.to(device, dtype=torch.long, non_blocking=True)
+            outputs, _, _, _ = model(images)
+            if opts.train.loss_type == 'bce_loss':
+                outputs = torch.sigmoid(outputs)
+            else:
+                outputs = torch.softmax(outputs, dim=1)
+            # Debug output alignment (Action 1.3)
+            if i == 0 and args.local_rank == 0:
+                print(f"Output shape: {outputs.shape}, Unique preds: {torch.unique(outputs.max(dim=1)[1])}")
+            preds = outputs.detach().max(dim=1)[1].cpu().numpy()
+            targets = labels.cpu().numpy()
+            metrics.update(targets, preds)
+        score = metrics.get_results()
+        if args.local_rank == 0:
+            print("Class IoU:", score['Class IoU'])
+    return score
 def get_base_model(model):
     """Helper to get the base model whether it's wrapped in DDP or not"""
     return model.module if hasattr(model, 'module') else model
@@ -226,7 +255,6 @@ def pre_tune_neST(opts, model, model_prev, train_loader, device, epochs=5):
         for i, w in enumerate(cls_emb_splits):
             base_model.decoder.cls_emb[i].copy_(w.unsqueeze(0))
 
-# train function
 def train(opts):
     writer = SummaryWriter('runs/' + str(args.log))
     num_workers = 4 * len(opts.gpu_ids)
@@ -260,6 +288,7 @@ def train(opts):
 
     model = Segmenter(backbone=opts.train.backbone, num_classes=opts.num_classes, pretrained=True).to(device)
 
+    # Move dataset and loader setup here
     dataset_dict = get_dataset(opts)
     train_sampler = DistributedSampler(dataset_dict['train'], shuffle=True)
     train_loader = data.DataLoader(
@@ -283,12 +312,22 @@ def train(opts):
         ).to(device)
         opts.ckpt = ckpt_str % (opts.train.backbone, opts.dataset.name, opts.task, opts.curr_step-1)
         checkpoint = torch.load(opts.ckpt, map_location=device)
+        if args.local_rank == 0:
+            print("Step 0 Checkpoint Keys:")
+            state_dict = checkpoint if 'model_state' not in checkpoint else checkpoint['model_state']
+            for key, value in state_dict.items():
+                print(f"{key}: {value.shape}")
         model_prev.load_state_dict(checkpoint if 'model_state' not in checkpoint else checkpoint['model_state'], strict=False)
         model_prev.eval()
 
-        # Load step 0 weights into current model as a starting point
+# Load step 0 checkpoint into current model
         model.load_state_dict(checkpoint if 'model_state' not in checkpoint else checkpoint['model_state'], strict=False)
+        if args.local_rank == 0:
+            print("Before NeST pre-tuning:")
+            for i, emb in enumerate(model.decoder.cls_emb):
+                print(f"cls_emb[{i}]: {emb.shape}, requires_grad={emb.requires_grad}, sample_values={emb[0, 0, :5]}")
 
+        # Now train_loader is defined
         if args.local_rank == 0:
             print(f"=> NeST pre-tuning for new classes at step {opts.curr_step}")
         pre_tune_neST(
@@ -299,6 +338,12 @@ def train(opts):
             device=device,
             epochs=1
         )
+        # Log cls_emb after pre-tuning
+        if args.local_rank == 0:
+            print("After NeST pre-tuning:")
+            for i, emb in enumerate(model.decoder.cls_emb):
+                print(f"cls_emb[{i}]: {emb.shape}, requires_grad={emb.requires_grad}, sample_values={emb[0, 0, :5]}")
+        # ... (rest of the code continues)
 
         # Unfreeze parameters for main training, keep old cls_emb frozen
         for param in model.parameters():
@@ -432,6 +477,8 @@ def train(opts):
                     pred_labels,
                     labels
                 )
+                if args.local_rank == 0 and n_iter % 10 == 0:  # Log every 10 iterations
+                    print(f"Iter {n_iter}: pred_labels unique: {torch.unique(pred_labels)}, labels unique: {torch.unique(labels)}, lfd: {lfd.item()}")          
                 HW = int(math.sqrt(patches.shape[1]))
                 label_temp = F.interpolate(labels.unsqueeze(1).float(), size=(HW, HW), mode='nearest').squeeze(1)
                 pred_score_mask = utils.make_scoremap(
@@ -527,220 +574,3 @@ if __name__ == "__main__":
     for step in range(start_step, total_step):
         opts.curr_step = step
         train(opts=opts)
-
-'''
-{'overlap': True, 'random_seed': 1, 'curr_step': 1, 'task': '10-1', 'gpu_ids': [0, 1], 'ckpt': 'None', 'amp': True, 'train': {'MBS': True, 'weight_transfer': True, 'distill_args': 25, 'backbone': 'vit_b_16', 'train_epochs': 1, 'log_iters': 50, 'crop_val': True, 'loss_type': 'ce_loss', 'pseudo_thresh': 0.7}, 'dataset': {'name': 'voc', 'data_root': '/root/ECCV2024_MBS/data_root/VOCdevkit/VOC2012', 'crop_size': 512, 'resize_range': [512, 2048], 'rescale_range': [0.5, 2.0], 'ignore_index': 255, 'batch_size': 2, 'val_batch_size': 4}, 'optimizer': {'learning_rate': 0.001, 'inc_lr': 0.1, 'weight_decay': 1e-05}, 'num_classes': [1, 10, 1]}
-==============================================
-2025-04-01 10:51:50,403: Resized position embedding: torch.Size([1, 577, 768]) to torch.Size([1, 1025, 768])
-2025-04-01 10:51:50,403: Position embedding grid-size from [24, 24] to (32, 32)
-/root/miniconda3/envs/MBS/lib/python3.8/site-packages/torch/utils/data/dataloader.py:478: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
-  warnings.warn(_create_warning_msg(
-/root/miniconda3/envs/MBS/lib/python3.8/site-packages/torch/utils/data/dataloader.py:478: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
-  warnings.warn(_create_warning_msg(
-2025-04-01 10:51:59,163: Resized position embedding: torch.Size([1, 577, 768]) to torch.Size([1, 1025, 768])
-2025-04-01 10:51:59,163: Position embedding grid-size from [24, 24] to (32, 32)
-=> NeST pre-tuning for new classes at step 1
-/root/miniconda3/envs/MBS/lib/python3.8/site-packages/torch/nn/functional.py:3631: UserWarning: Default upsampling behavior when mode=bilinear is changed to align_corners=False since 0.4.0. Please specify align_corners=True if the old behavior is desired. See the documentation of nn.Upsample for details.
-  warnings.warn(
-/root/miniconda3/envs/MBS/lib/python3.8/site-packages/torch/nn/functional.py:3631: UserWarning: Default upsampling behavior when mode=bilinear is changed to align_corners=False since 0.4.0. Please specify align_corners=True if the old behavior is desired. See the documentation of nn.Upsample for details.
-  warnings.warn(
-Pre-tuning Epoch 1/1, Loss: 2.7084
-Warning: No 'decoder.cls_emb.0' in checkpoint, skipping weight transfer
------------ trainable parameters --------------
-module.encoder.cls_token torch.Size([1, 1, 768])
-module.encoder.pos_embed torch.Size([1, 1025, 768])
-module.encoder.patch_embed.proj.weight torch.Size([768, 3, 16, 16])
-module.encoder.patch_embed.proj.bias torch.Size([768])
-module.encoder.blocks.0.norm1.weight torch.Size([768])
-module.encoder.blocks.0.norm1.bias torch.Size([768])
-module.encoder.blocks.0.norm2.weight torch.Size([768])
-module.encoder.blocks.0.norm2.bias torch.Size([768])
-module.encoder.blocks.0.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.0.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.0.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.0.attn.proj.bias torch.Size([768])
-module.encoder.blocks.0.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.0.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.0.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.0.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.1.norm1.weight torch.Size([768])
-module.encoder.blocks.1.norm1.bias torch.Size([768])
-module.encoder.blocks.1.norm2.weight torch.Size([768])
-module.encoder.blocks.1.norm2.bias torch.Size([768])
-module.encoder.blocks.1.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.1.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.1.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.1.attn.proj.bias torch.Size([768])
-module.encoder.blocks.1.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.1.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.1.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.1.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.2.norm1.weight torch.Size([768])
-module.encoder.blocks.2.norm1.bias torch.Size([768])
-module.encoder.blocks.2.norm2.weight torch.Size([768])
-module.encoder.blocks.2.norm2.bias torch.Size([768])
-module.encoder.blocks.2.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.2.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.2.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.2.attn.proj.bias torch.Size([768])
-module.encoder.blocks.2.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.2.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.2.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.2.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.3.norm1.weight torch.Size([768])
-module.encoder.blocks.3.norm1.bias torch.Size([768])
-module.encoder.blocks.3.norm2.weight torch.Size([768])
-module.encoder.blocks.3.norm2.bias torch.Size([768])
-module.encoder.blocks.3.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.3.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.3.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.3.attn.proj.bias torch.Size([768])
-module.encoder.blocks.3.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.3.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.3.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.3.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.4.norm1.weight torch.Size([768])
-module.encoder.blocks.4.norm1.bias torch.Size([768])
-module.encoder.blocks.4.norm2.weight torch.Size([768])
-module.encoder.blocks.4.norm2.bias torch.Size([768])
-module.encoder.blocks.4.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.4.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.4.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.4.attn.proj.bias torch.Size([768])
-module.encoder.blocks.4.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.4.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.4.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.4.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.5.norm1.weight torch.Size([768])
-module.encoder.blocks.5.norm1.bias torch.Size([768])
-module.encoder.blocks.5.norm2.weight torch.Size([768])
-module.encoder.blocks.5.norm2.bias torch.Size([768])
-module.encoder.blocks.5.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.5.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.5.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.5.attn.proj.bias torch.Size([768])
-module.encoder.blocks.5.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.5.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.5.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.5.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.6.norm1.weight torch.Size([768])
-module.encoder.blocks.6.norm1.bias torch.Size([768])
-module.encoder.blocks.6.norm2.weight torch.Size([768])
-module.encoder.blocks.6.norm2.bias torch.Size([768])
-module.encoder.blocks.6.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.6.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.6.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.6.attn.proj.bias torch.Size([768])
-module.encoder.blocks.6.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.6.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.6.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.6.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.7.norm1.weight torch.Size([768])
-module.encoder.blocks.7.norm1.bias torch.Size([768])
-module.encoder.blocks.7.norm2.weight torch.Size([768])
-module.encoder.blocks.7.norm2.bias torch.Size([768])
-module.encoder.blocks.7.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.7.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.7.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.7.attn.proj.bias torch.Size([768])
-module.encoder.blocks.7.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.7.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.7.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.7.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.8.norm1.weight torch.Size([768])
-module.encoder.blocks.8.norm1.bias torch.Size([768])
-module.encoder.blocks.8.norm2.weight torch.Size([768])
-module.encoder.blocks.8.norm2.bias torch.Size([768])
-module.encoder.blocks.8.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.8.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.8.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.8.attn.proj.bias torch.Size([768])
-module.encoder.blocks.8.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.8.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.8.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.8.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.9.norm1.weight torch.Size([768])
-module.encoder.blocks.9.norm1.bias torch.Size([768])
-module.encoder.blocks.9.norm2.weight torch.Size([768])
-module.encoder.blocks.9.norm2.bias torch.Size([768])
-module.encoder.blocks.9.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.9.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.9.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.9.attn.proj.bias torch.Size([768])
-module.encoder.blocks.9.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.9.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.9.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.9.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.10.norm1.weight torch.Size([768])
-module.encoder.blocks.10.norm1.bias torch.Size([768])
-module.encoder.blocks.10.norm2.weight torch.Size([768])
-module.encoder.blocks.10.norm2.bias torch.Size([768])
-module.encoder.blocks.10.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.10.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.10.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.10.attn.proj.bias torch.Size([768])
-module.encoder.blocks.10.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.10.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.10.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.10.mlp.fc2.bias torch.Size([768])
-module.encoder.blocks.11.norm1.weight torch.Size([768])
-module.encoder.blocks.11.norm1.bias torch.Size([768])
-module.encoder.blocks.11.norm2.weight torch.Size([768])
-module.encoder.blocks.11.norm2.bias torch.Size([768])
-module.encoder.blocks.11.attn.qkv.weight torch.Size([2304, 768])
-module.encoder.blocks.11.attn.qkv.bias torch.Size([2304])
-module.encoder.blocks.11.attn.proj.weight torch.Size([768, 768])
-module.encoder.blocks.11.attn.proj.bias torch.Size([768])
-module.encoder.blocks.11.mlp.fc1.weight torch.Size([3072, 768])
-module.encoder.blocks.11.mlp.fc1.bias torch.Size([3072])
-module.encoder.blocks.11.mlp.fc2.weight torch.Size([768, 3072])
-module.encoder.blocks.11.mlp.fc2.bias torch.Size([768])
-module.encoder.norm.weight torch.Size([768])
-module.encoder.norm.bias torch.Size([768])
-module.encoder.head.weight torch.Size([20, 768])
-module.encoder.head.bias torch.Size([20])
-module.decoder.proj_patch torch.Size([768, 768])
-module.decoder.proj_classes torch.Size([768, 768])
-module.decoder.M0 torch.Size([768, 1])
-module.decoder.P0 torch.Size([1, 1])
-module.decoder.blocks.0.norm1.weight torch.Size([768])
-module.decoder.blocks.0.norm1.bias torch.Size([768])
-module.decoder.blocks.0.norm2.weight torch.Size([768])
-module.decoder.blocks.0.norm2.bias torch.Size([768])
-module.decoder.blocks.0.attn.qkv.weight torch.Size([2304, 768])
-module.decoder.blocks.0.attn.qkv.bias torch.Size([2304])
-module.decoder.blocks.0.attn.proj.weight torch.Size([768, 768])
-module.decoder.blocks.0.attn.proj.bias torch.Size([768])
-module.decoder.blocks.0.mlp.fc1.weight torch.Size([3072, 768])
-module.decoder.blocks.0.mlp.fc1.bias torch.Size([3072])
-module.decoder.blocks.0.mlp.fc2.weight torch.Size([768, 3072])
-module.decoder.blocks.0.mlp.fc2.bias torch.Size([768])
-module.decoder.blocks.1.norm1.weight torch.Size([768])
-module.decoder.blocks.1.norm1.bias torch.Size([768])
-module.decoder.blocks.1.norm2.weight torch.Size([768])
-module.decoder.blocks.1.norm2.bias torch.Size([768])
-module.decoder.blocks.1.attn.qkv.weight torch.Size([2304, 768])
-module.decoder.blocks.1.attn.qkv.bias torch.Size([2304])
-module.decoder.blocks.1.attn.proj.weight torch.Size([768, 768])
-module.decoder.blocks.1.attn.proj.bias torch.Size([768])
-module.decoder.blocks.1.mlp.fc1.weight torch.Size([3072, 768])
-module.decoder.blocks.1.mlp.fc1.bias torch.Size([3072])
-module.decoder.blocks.1.mlp.fc2.weight torch.Size([768, 3072])
-module.decoder.blocks.1.mlp.fc2.bias torch.Size([768])
-module.decoder.cls_emb.2 torch.Size([1, 1, 768])
-module.decoder.proj_dec.weight torch.Size([768, 768])
-module.decoder.proj_dec.bias torch.Size([768])
-module.decoder.decoder_norm.weight torch.Size([768])
-module.decoder.decoder_norm.bias torch.Size([768])
-module.decoder.mask_norm.weight.0 torch.Size([1])
-module.decoder.mask_norm.weight.1 torch.Size([10])
-module.decoder.mask_norm.weight.2 torch.Size([1])
-module.decoder.mask_norm.bias.0 torch.Size([1])
-module.decoder.mask_norm.bias.1 torch.Size([10])
-module.decoder.mask_norm.bias.2 torch.Size([1])
-module.decoder.importance_matrices.0 torch.Size([768, 12])
-module.decoder.projection_matrices.0 torch.Size([12, 1])
------------------------------------------------
-Dataset: voc, Train set: 528, Val set: 75, Test set: 1449
-... train epoch : 1 , iterations : 132 , val_interval : 100
-''''''
