@@ -1,6 +1,6 @@
 overlap: True
 random_seed: 1
-curr_step: 1
+curr_step: 0
 task: 10-1
 gpu_ids: [0, 1]
 ckpt: None
