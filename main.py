@@ -170,7 +170,7 @@ def pre_tune_neST(opts, model, model_prev, train_loader, device, epochs=5):
     for param in nest_params:
         param.requires_grad = True
 
-    optimizer = torch.optim.SGD(nest_params, lr=opts.optimizer.learning_rate*0.1)
+    optimizer = torch.optim.SGD(nest_params, lr=opts.optimizer.learning_rate * 0.1)
 
     # Get class indices (accounting for [1, 15, 1, ...] format)
     n_old = sum(opts.num_classes[:-1])  # Background + all old classes
@@ -231,16 +231,11 @@ def train(opts):
     writer = SummaryWriter('runs/' + str(args.log))
     num_workers = 4 * len(opts.gpu_ids)
     
-    time0 = datetime.datetime.now()
-    time0 = time0.replace(microsecond=0)
+    time0 = datetime.datetime.now().replace(microsecond=0)
     
-    # Get the target classes for the current task and step
     target_cls = get_tasks(opts.dataset.name, opts.task, opts.curr_step)
-    
-    # Calculate the number of classes for each step
     opts.num_classes = [len(get_tasks(opts.dataset.name, opts.task, step)) for step in range(opts.curr_step+1)]
     opts.num_classes = [1, opts.num_classes[0]-1] + opts.num_classes[1:]
-    
     curr_idx = [
         sum(len(get_tasks(opts.dataset.name, opts.task, step)) for step in range(opts.curr_step)), 
         sum(len(get_tasks(opts.dataset.name, opts.task, step)) for step in range(opts.curr_step+1))
@@ -248,6 +243,11 @@ def train(opts):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     bg_label = 0
+    
+    if opts.overlap:
+        ckpt_str = "checkpoints/%s_%s_%s_step_%d_overlap.pth"
+    else:
+        ckpt_str = "checkpoints/%s_%s_%s_step_%d_disjoint.pth"
     
     if args.local_rank == 0:
         print("==============================================")
@@ -258,9 +258,7 @@ def train(opts):
         print(opts)
         print("==============================================")
 
-    # Initialize the model
-    model = Segmenter(backbone=opts.train.backbone, num_classes=opts.num_classes, pretrained=True)
-    model = model.to(device)  # Move to device before pre-tuning
+    model = Segmenter(backbone=opts.train.backbone, num_classes=opts.num_classes, pretrained=True).to(device)
 
     dataset_dict = get_dataset(opts)
     train_sampler = DistributedSampler(dataset_dict['train'], shuffle=True)
@@ -278,43 +276,76 @@ def train(opts):
         dataset_dict['test'], batch_size=opts.dataset.val_batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
     
     if opts.curr_step > 0:
-        """Load previous model"""
         model_prev = Segmenter(
             backbone=opts.train.backbone,
-            num_classes=list(opts.num_classes)[:-1],  # [1, 10] for step 0
+            num_classes=list(opts.num_classes)[:-1],
             pretrained=True
-        )
-        model_prev = model_prev.to(device)
-
-        checkpoint_path = "checkpoints/vit_b_16_voc_10-1_step_0_overlap.pth"
-        checkpoint = torch.load(checkpoint_path, map_location=device)
-        if args.local_rank == 0:
-            print("Checkpoint keys:", list(checkpoint.keys()))
-        model_prev.load_state_dict(checkpoint, strict=False)
+        ).to(device)
+        opts.ckpt = ckpt_str % (opts.train.backbone, opts.dataset.name, opts.task, opts.curr_step-1)
+        checkpoint = torch.load(opts.ckpt, map_location=device)
+        model_prev.load_state_dict(checkpoint if 'model_state' not in checkpoint else checkpoint['model_state'], strict=False)
         model_prev.eval()
 
-        print(f"=> NeST pre-tuning for new classes at step {opts.curr_step}")
+        # Load step 0 weights into current model as a starting point
+        model.load_state_dict(checkpoint if 'model_state' not in checkpoint else checkpoint['model_state'], strict=False)
+
+        if args.local_rank == 0:
+            print(f"=> NeST pre-tuning for new classes at step {opts.curr_step}")
         pre_tune_neST(
             opts=opts,
             model=model,
             model_prev=model_prev,
             train_loader=train_loader,
             device=device,
-            epochs=5
+            epochs=1
         )
 
-        # Unfreeze parameters for main training after pre-tuning
+        # Unfreeze parameters for main training, keep old cls_emb frozen
         for param in model.parameters():
-            param.requires_grad = True  # Unfreeze all for full training
+            param.requires_grad = True
+        for i in range(len(model.decoder.cls_emb) - 1):
+            model.decoder.cls_emb[i].requires_grad = False
 
+        # Refresh importance/projection matrices for new total classes
+        total_classes = sum(opts.num_classes)
+        old_classes = sum(opts.num_classes[:-1])
+        with torch.no_grad():
+            if not model.decoder.importance_matrices:
+                model.decoder.init_nest_params(opts.num_classes, device=device)
+            else:
+                old_importance = model.decoder.importance_matrices[0]
+                old_projection = model.decoder.projection_matrices[0]
+                new_importance = torch.zeros(768, total_classes, device=device)
+                new_projection = torch.zeros(total_classes, 1, device=device)
+                new_importance[:, :old_classes] = old_importance[:, :old_classes]
+                new_projection[:old_classes, :] = old_projection[:old_classes, :]
+                # Convert to Parameter objects
+                model.decoder.importance_matrices[0] = torch.nn.Parameter(new_importance)
+                model.decoder.projection_matrices[0] = torch.nn.Parameter(new_projection)
+
+        # Weight transfer for new class
+        if opts.train.weight_transfer:
+            curr_head_num = len(model.decoder.cls_emb) - 1
+            class_token_param = model.state_dict()[f"decoder.cls_emb.{curr_head_num}"]
+            checkpoint_dict = checkpoint if 'model_state' not in checkpoint else checkpoint['model_state']
+            if "decoder.cls_emb.0" in checkpoint_dict:
+                for i in range(opts.num_classes[-1]):
+                    class_token_param[:, i] = checkpoint_dict["decoder.cls_emb.0"]
+                model.decoder.cls_emb[curr_head_num].data.copy_(class_token_param)
+            else:
+                if args.local_rank == 0:
+                    print("Warning: No 'decoder.cls_emb.0' in checkpoint, skipping weight transfer")
     else:
         model_prev = None
+        if opts.ckpt is not None and os.path.isfile(opts.ckpt):
+            checkpoint = torch.load(opts.ckpt, map_location=device)["model_state"]
+            model.load_state_dict(checkpoint, strict=True)
+            if args.local_rank == 0:
+                print("Curr_step is zero. Model restored from %s" % opts.ckpt)
 
-    # DDP wrapping after pre-tuning
     model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)
     model.train()
 
-    # Define param_groups after DDP wrapping
     nest_params = []
     if opts.curr_step > 0:
         nest_params = (
@@ -323,7 +354,6 @@ def train(opts):
             [model.module.decoder.M0, model.module.decoder.P0]
         )
 
-    # Define param_groups (now includes all trainable parameters)
     param_groups = [
         {"params": model.module.encoder.parameters(), "lr": opts.optimizer.learning_rate},
         {"params": [p for p in model.module.decoder.parameters() 
@@ -331,14 +361,9 @@ def train(opts):
          "lr": opts.optimizer.learning_rate}
     ]
     if nest_params:
-        param_groups.append({
-            "params": nest_params,
-            "lr": opts.optimizer.learning_rate * 0.1  # Lower LR for NeST
-        })
+        param_groups.append({"params": nest_params, "lr": opts.optimizer.learning_rate * 0.1})
 
-    optimizer = torch.optim.SGD(param_groups, 
-                                momentum=0.9,
-                                weight_decay=opts.optimizer.weight_decay)
+    optimizer = torch.optim.SGD(param_groups, momentum=0.9, weight_decay=opts.optimizer.weight_decay)
     
     def save_ckpt(path):
         torch.save({
@@ -346,84 +371,20 @@ def train(opts):
             "optimizer_state": optimizer.state_dict(),
             "best_score": best_score,
         }, path)
-        
         if args.local_rank == 0:
             print("Model saved as %s" % path)
 
     utils.mkdir('checkpoints')    
-    # Restore
     best_score = -1
     cur_epochs = 0
     
-    if opts.overlap:
-        ckpt_str = "checkpoints/%s_%s_%s_step_%d_overlap.pth"
-    else:
-        ckpt_str = "checkpoints/%s_%s_%s_step_%d_disjoint.pth"
-    
-    # Model load from checkpoint if opts_curr_step == 0 
-    if opts.curr_step == 0 and (opts.ckpt is not None and os.path.isfile(opts.ckpt)):
-        checkpoint = torch.load(opts.ckpt, map_location=torch.device('cpu'))["model_state"]
-        model.module.load_state_dict(checkpoint, strict=True)
-        
-        if args.local_rank == 0:
-            print("Curr_step is zero. Model restored from %s" % opts.ckpt)
-        del checkpoint  # free memory
-    
-# Model load from checkpoint if opts_curr_step > 0
-    if opts.curr_step > 0:
-        opts.ckpt = ckpt_str % (opts.train.backbone, opts.dataset.name, opts.task, opts.curr_step-1)
-    
-        if opts.ckpt is not None and os.path.isfile(opts.ckpt):
-            checkpoint = torch.load(opts.ckpt, map_location=torch.device('cpu'))["model_state"]
-            if args.local_rank == 0:
-                print("Checkpoint keys (model_state):", list(checkpoint.keys()))
-            model_prev.load_state_dict(checkpoint, strict=False)         
-            
-            if opts.train.weight_transfer:
-                curr_head_num = len(model.module.decoder.cls_emb) - 1
-                class_token_param = model.module.state_dict()[f"decoder.cls_emb.{curr_head_num}"]
-                if "decoder.cls_emb.0" in checkpoint:
-                    for i in range(opts.num_classes[-1]):
-                        class_token_param[:, i] = checkpoint["decoder.cls_emb.0"]
-                elif "module.decoder.cls_emb.0" in checkpoint:  # Adjust for DDP prefix
-                    for i in range(opts.num_classes[-1]):
-                        class_token_param[:, i] = checkpoint["module.decoder.cls_emb.0"]
-                elif "decoder.cls_emb" in checkpoint:
-                    bg_token = checkpoint["decoder.cls_emb"][:, 0, :]
-                    for i in range(opts.num_classes[-1]):
-                        class_token_param[:, i] = bg_token.squeeze(0)
-                else:
-                    if args.local_rank == 0:
-                        print("Warning: No suitable 'decoder.cls_emb' key found in checkpoint, skipping weight transfer")
-                        
-                checkpoint[f"decoder.cls_emb.{curr_head_num}"] = class_token_param
-                    
-            model.module.load_state_dict(checkpoint, strict=False)
-                
-            if args.local_rank == 0:
-                print("Model restored from %s" % opts.ckpt)
-            del checkpoint
-        else:
-            if args.local_rank == 0:
-                print("[!] Retrain")
-
-    if opts.curr_step > 0:
-        model_prev.to(device)
-        model_prev.eval()
-        for param in model_prev.parameters():
-            param.requires_grad = False
-                
-    if args.local_rank == 0:
+    if args.local_rank == 0 and opts.curr_step > 0:
         print("----------- trainable parameters --------------")
         for name, param in model.named_parameters():
             if param.requires_grad:
                 print(name, param.shape)
         print("-----------------------------------------------")
-    # Ensure model is on device and in train mode after DDP (already done, but redundant calls removed)
-    # model = model.to(device)  # Remove this redundant line
-    # model = DistributedDataParallel(model, device_ids=[opts.gpu_ids[args.local_rank]], find_unused_parameters=True)  # Remove this redundant line
-    # model.train()  # Remove this redundant line
-
+    
     if args.local_rank == 0:
         print("Dataset: %s, Train set: %d, Val set: %d, Test set: %d" %
               (opts.dataset.name, len(dataset_dict['train']), len(dataset_dict['val']), len(dataset_dict['test'])))
@@ -433,32 +394,20 @@ def train(opts):
     metrics = StreamSegMetrics(sum(opts.num_classes), dataset=opts.dataset.name)
 
     train_sampler.set_epoch(0)
-            
     if args.local_rank == 0:
         print(f"... train epoch : {opts.train.train_epochs} , iterations : {max_iters} , val_interval : {val_interval}")
-    
+
     scaler = torch.cuda.amp.GradScaler(enabled=opts.amp)
-    if opts.train.loss_type == 'bce_loss':
-        criterion = utils.BCEWithLogitsLossWithIgnoreIndex(ignore_index=opts.dataset.ignore_index, 
-                                                           reduction='mean')
-    elif opts.train.loss_type == 'ce_loss':                                                                                                                                                                                                                                                                       
-        criterion = torch.nn.CrossEntropyLoss(ignore_index=opts.dataset.ignore_index, reduction='mean')
+    criterion = torch.nn.CrossEntropyLoss(ignore_index=opts.dataset.ignore_index, reduction='mean').to(device)
+    fd_loss = utils.AdaptiveFeatureDistillation(reduction="mean", alpha=1).to(device) if opts.train.MBS else utils.KnowledgeDistillationLoss(reduction="mean", alpha=1.0).to(device)
 
-    if opts.train.MBS:
-        fd_loss = utils.AdaptiveFeatureDistillation(reduction="mean", alpha=1).to(device)
-    else:
-        fd_loss = utils.KnowledgeDistillationLoss(reduction="mean", alpha=1.0).to(device)
-
-    criterion = criterion.to(device)
-    cur_epochs = 0
     avg_loss = AverageMeter()
-    
-    # Rest of your training loop (unchanged)
+    train_loader_iter = iter(train_loader)
     for n_iter in range(max_iters):
         try:
             inputs, labels, _ = next(train_loader_iter)
-        except:
-            train_sampler.set_epoch(n_iter)
+        except StopIteration:
+            train_sampler.set_epoch(cur_epochs)
             train_loader_iter = iter(train_loader)
             inputs, labels, _ = next(train_loader_iter)
             cur_epochs += 1
@@ -468,25 +417,21 @@ def train(opts):
         origin_labels = labels.clone()
         
         optimizer.zero_grad()
-        
         with torch.cuda.amp.autocast(enabled=opts.amp):
             outputs, patches, cls_seg_feat, cls_token = model(inputs)
             lod = torch.zeros(1).to(device)
-            lfd_patches = torch.zeros(1).to(device)
             lfd = torch.zeros(1).to(device)
             
             if opts.curr_step > 0:
                 with torch.no_grad():
                     outputs_prev, patches_prev, cls_seg_feat_prev, _ = model_prev(inputs)
                     pred_prob = torch.softmax(outputs_prev, 1).detach()
-
                 pred_scores, pred_labels = torch.max(pred_prob, dim=1)
                 labels = torch.where(
                     (labels <= bg_label) & (pred_labels > bg_label) & (pred_scores >= opts.train.pseudo_thresh),
                     pred_labels,
                     labels
                 )
-
                 HW = int(math.sqrt(patches.shape[1]))
                 label_temp = F.interpolate(labels.unsqueeze(1).float(), size=(HW, HW), mode='nearest').squeeze(1)
                 pred_score_mask = utils.make_scoremap(
@@ -503,70 +448,59 @@ def train(opts):
         avg_loss.update(loss_total.item())
         scaler.update()
         
-        if (n_iter+1) % opts.train.log_iters == 0 and args.local_rank==0:
+        if (n_iter+1) % opts.train.log_iters == 0 and args.local_rank == 0:
             delta, eta = cal_eta(time0, n_iter+1, max_iters)
             lr = optimizer.param_groups[0]['lr']
-            logging.info("[Epochs: %d Iter: %d] Elasped: %s; ETA: %s; LR: %.3e; loss: %f; FD_loss: %f; OD_loss: %f"%(cur_epochs, n_iter+1, delta, eta, lr, avg_loss.avg, lfd.item(), 
-                                                                                                                                 lod.item()))
+            logging.info("[Epochs: %d Iter: %d] Elasped: %s; ETA: %s; LR: %.3e; loss: %f; FD_loss: %f; OD_loss: %f" % (
+                cur_epochs, n_iter+1, delta, eta, lr, avg_loss.avg, lfd.item(), lod.item()))
             writer.add_scalar(f'loss/train_{opts.curr_step}', loss_total.item(), n_iter+1)
             writer.add_scalar(f'lr/train_{opts.curr_step}', lr, n_iter+1)
             record_inputs, record_outputs, record_labels = imutils.tensorboard_image(inputs=inputs, outputs=outputs, labels=labels, dataset=opts.dataset.name)
-            
             writer.add_image(f"input/train_{opts.curr_step}", record_inputs, n_iter+1)
             writer.add_image(f"output/train_{opts.curr_step}", record_outputs, n_iter+1)
             writer.add_image(f"label/train_{opts.curr_step}", record_labels, n_iter+1)
             
         if (n_iter+1) % val_interval == 0:
-            if args.local_rank==0:
+            if args.local_rank == 0:
                 logging.info('Validating...')
             model.eval()
-            val_score = validate(opts=opts, model=model, loader=val_loader, 
-                              device=device, metrics=metrics)
-            
-            if args.local_rank==0:
+            val_score = validate(opts=opts, model=model, loader=val_loader, device=device, metrics=metrics)
+            if args.local_rank == 0:
                 logging.info(metrics.to_str(val_score))
             model.train()
-              
             writer.add_scalars(f'val/train_{opts.curr_step}', {"Overall Acc": val_score["Overall Acc"],
-                                            "Mean Acc": val_score["Mean Acc"],
-                                            "Mean IoU": val_score["Mean IoU"]}, n_iter+1)
+                                                               "Mean Acc": val_score["Mean Acc"],
+                                                               "Mean IoU": val_score["Mean IoU"]}, n_iter+1)
             class_iou = list(val_score['Class IoU'].values())
-            curr_score = np.mean( class_iou[curr_idx[0]:curr_idx[1]] )
-            if args.local_rank==0:
-                print("curr_val_score : %.4f" % (curr_score))
-            
-            if curr_score > best_score and args.local_rank==0:  # save best model
+            curr_score = np.mean(class_iou[curr_idx[0]:curr_idx[1]])
+            if args.local_rank == 0:
+                print("curr_val_score : %.4f" % curr_score)
+            if curr_score > best_score and args.local_rank == 0:
                 print("... save best ckpt : ", curr_score)
                 best_score = curr_score
                 save_ckpt(ckpt_str % (opts.train.backbone, opts.dataset.name, opts.task, opts.curr_step))
                 
-    if args.local_rank==0:            
+    if args.local_rank == 0:            
         print("... Training Done")
     time.sleep(2)
     
     if opts.curr_step >= 0:
-        if args.local_rank==0:
+        if args.local_rank == 0:
             logging.info("... Testing Best Model")
         best_ckpt = ckpt_str % (opts.train.backbone, opts.dataset.name, opts.task, opts.curr_step)
-        
-        checkpoint = torch.load(best_ckpt, map_location=torch.device('cpu'))["model_state"]
+        checkpoint = torch.load(best_ckpt, map_location=device)["model_state"]
         model.module.load_state_dict(checkpoint, strict=True)
         model.eval()
-        test_score = validate(opts=opts, model=model, loader=test_loader, 
-                              device=device, metrics=metrics)
-        if args.local_rank==0:
+        test_score = validate(opts=opts, model=model, loader=test_loader, device=device, metrics=metrics)
+        if args.local_rank == 0:
             logging.info(metrics.to_str(test_score))
-
-        class_iou = list(test_score['Class IoU'].values())
-        class_acc = list(test_score['Class Acc'].values())
-        first_cls = len(get_tasks(opts.dataset.name, opts.task, 0))
-        
-        if args.local_rank==0:
+            class_iou = list(test_score['Class IoU'].values())
+            class_acc = list(test_score['Class Acc'].values())
+            first_cls = len(get_tasks(opts.dataset.name, opts.task, 0))
             logging.info(f"...from 1 to {first_cls-1} : best/test_before_mIoU : %.6f" % np.mean(class_iou[1:first_cls]))
             logging.info(f"...from {first_cls} to {len(class_iou)-1} best/test_after_mIoU : %.6f" % np.mean(class_iou[first_cls:]))
             logging.info(f"...from 1 to {first_cls-1} : best/test_before_acc : %.6f" % np.mean(class_acc[1:first_cls]))
-            logging.info(f"...from {first_cls} to {len(class_iou)-1} best/test_after_acc : %.6f" % np.mean(class_acc[first_cls:]))            
-            
+            logging.info(f"...from {first_cls} to {len(class_iou)-1} best/test_after_acc : %.6f" % np.mean(class_acc[first_cls:]))
 
 if __name__ == "__main__":
     
@@ -593,3 +527,220 @@ if __name__ == "__main__":
     for step in range(start_step, total_step):
         opts.curr_step = step
         train(opts=opts)
+
+'''
+{'overlap': True, 'random_seed': 1, 'curr_step': 1, 'task': '10-1', 'gpu_ids': [0, 1], 'ckpt': 'None', 'amp': True, 'train': {'MBS': True, 'weight_transfer': True, 'distill_args': 25, 'backbone': 'vit_b_16', 'train_epochs': 1, 'log_iters': 50, 'crop_val': True, 'loss_type': 'ce_loss', 'pseudo_thresh': 0.7}, 'dataset': {'name': 'voc', 'data_root': '/root/ECCV2024_MBS/data_root/VOCdevkit/VOC2012', 'crop_size': 512, 'resize_range': [512, 2048], 'rescale_range': [0.5, 2.0], 'ignore_index': 255, 'batch_size': 2, 'val_batch_size': 4}, 'optimizer': {'learning_rate': 0.001, 'inc_lr': 0.1, 'weight_decay': 1e-05}, 'num_classes': [1, 10, 1]}
+==============================================
+2025-04-01 10:51:50,403: Resized position embedding: torch.Size([1, 577, 768]) to torch.Size([1, 1025, 768])
+2025-04-01 10:51:50,403: Position embedding grid-size from [24, 24] to (32, 32)
+/root/miniconda3/envs/MBS/lib/python3.8/site-packages/torch/utils/data/dataloader.py:478: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/root/miniconda3/envs/MBS/lib/python3.8/site-packages/torch/utils/data/dataloader.py:478: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+2025-04-01 10:51:59,163: Resized position embedding: torch.Size([1, 577, 768]) to torch.Size([1, 1025, 768])
+2025-04-01 10:51:59,163: Position embedding grid-size from [24, 24] to (32, 32)
+=> NeST pre-tuning for new classes at step 1
+/root/miniconda3/envs/MBS/lib/python3.8/site-packages/torch/nn/functional.py:3631: UserWarning: Default upsampling behavior when mode=bilinear is changed to align_corners=False since 0.4.0. Please specify align_corners=True if the old behavior is desired. See the documentation of nn.Upsample for details.
+  warnings.warn(
+/root/miniconda3/envs/MBS/lib/python3.8/site-packages/torch/nn/functional.py:3631: UserWarning: Default upsampling behavior when mode=bilinear is changed to align_corners=False since 0.4.0. Please specify align_corners=True if the old behavior is desired. See the documentation of nn.Upsample for details.
+  warnings.warn(
+Pre-tuning Epoch 1/1, Loss: 2.7084
+Warning: No 'decoder.cls_emb.0' in checkpoint, skipping weight transfer
+----------- trainable parameters --------------
+module.encoder.cls_token torch.Size([1, 1, 768])
+module.encoder.pos_embed torch.Size([1, 1025, 768])
+module.encoder.patch_embed.proj.weight torch.Size([768, 3, 16, 16])
+module.encoder.patch_embed.proj.bias torch.Size([768])
+module.encoder.blocks.0.norm1.weight torch.Size([768])
+module.encoder.blocks.0.norm1.bias torch.Size([768])
+module.encoder.blocks.0.norm2.weight torch.Size([768])
+module.encoder.blocks.0.norm2.bias torch.Size([768])
+module.encoder.blocks.0.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.0.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.0.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.0.attn.proj.bias torch.Size([768])
+module.encoder.blocks.0.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.0.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.0.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.0.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.1.norm1.weight torch.Size([768])
+module.encoder.blocks.1.norm1.bias torch.Size([768])
+module.encoder.blocks.1.norm2.weight torch.Size([768])
+module.encoder.blocks.1.norm2.bias torch.Size([768])
+module.encoder.blocks.1.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.1.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.1.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.1.attn.proj.bias torch.Size([768])
+module.encoder.blocks.1.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.1.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.1.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.1.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.2.norm1.weight torch.Size([768])
+module.encoder.blocks.2.norm1.bias torch.Size([768])
+module.encoder.blocks.2.norm2.weight torch.Size([768])
+module.encoder.blocks.2.norm2.bias torch.Size([768])
+module.encoder.blocks.2.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.2.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.2.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.2.attn.proj.bias torch.Size([768])
+module.encoder.blocks.2.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.2.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.2.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.2.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.3.norm1.weight torch.Size([768])
+module.encoder.blocks.3.norm1.bias torch.Size([768])
+module.encoder.blocks.3.norm2.weight torch.Size([768])
+module.encoder.blocks.3.norm2.bias torch.Size([768])
+module.encoder.blocks.3.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.3.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.3.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.3.attn.proj.bias torch.Size([768])
+module.encoder.blocks.3.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.3.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.3.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.3.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.4.norm1.weight torch.Size([768])
+module.encoder.blocks.4.norm1.bias torch.Size([768])
+module.encoder.blocks.4.norm2.weight torch.Size([768])
+module.encoder.blocks.4.norm2.bias torch.Size([768])
+module.encoder.blocks.4.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.4.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.4.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.4.attn.proj.bias torch.Size([768])
+module.encoder.blocks.4.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.4.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.4.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.4.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.5.norm1.weight torch.Size([768])
+module.encoder.blocks.5.norm1.bias torch.Size([768])
+module.encoder.blocks.5.norm2.weight torch.Size([768])
+module.encoder.blocks.5.norm2.bias torch.Size([768])
+module.encoder.blocks.5.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.5.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.5.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.5.attn.proj.bias torch.Size([768])
+module.encoder.blocks.5.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.5.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.5.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.5.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.6.norm1.weight torch.Size([768])
+module.encoder.blocks.6.norm1.bias torch.Size([768])
+module.encoder.blocks.6.norm2.weight torch.Size([768])
+module.encoder.blocks.6.norm2.bias torch.Size([768])
+module.encoder.blocks.6.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.6.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.6.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.6.attn.proj.bias torch.Size([768])
+module.encoder.blocks.6.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.6.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.6.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.6.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.7.norm1.weight torch.Size([768])
+module.encoder.blocks.7.norm1.bias torch.Size([768])
+module.encoder.blocks.7.norm2.weight torch.Size([768])
+module.encoder.blocks.7.norm2.bias torch.Size([768])
+module.encoder.blocks.7.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.7.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.7.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.7.attn.proj.bias torch.Size([768])
+module.encoder.blocks.7.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.7.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.7.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.7.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.8.norm1.weight torch.Size([768])
+module.encoder.blocks.8.norm1.bias torch.Size([768])
+module.encoder.blocks.8.norm2.weight torch.Size([768])
+module.encoder.blocks.8.norm2.bias torch.Size([768])
+module.encoder.blocks.8.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.8.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.8.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.8.attn.proj.bias torch.Size([768])
+module.encoder.blocks.8.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.8.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.8.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.8.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.9.norm1.weight torch.Size([768])
+module.encoder.blocks.9.norm1.bias torch.Size([768])
+module.encoder.blocks.9.norm2.weight torch.Size([768])
+module.encoder.blocks.9.norm2.bias torch.Size([768])
+module.encoder.blocks.9.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.9.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.9.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.9.attn.proj.bias torch.Size([768])
+module.encoder.blocks.9.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.9.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.9.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.9.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.10.norm1.weight torch.Size([768])
+module.encoder.blocks.10.norm1.bias torch.Size([768])
+module.encoder.blocks.10.norm2.weight torch.Size([768])
+module.encoder.blocks.10.norm2.bias torch.Size([768])
+module.encoder.blocks.10.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.10.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.10.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.10.attn.proj.bias torch.Size([768])
+module.encoder.blocks.10.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.10.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.10.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.10.mlp.fc2.bias torch.Size([768])
+module.encoder.blocks.11.norm1.weight torch.Size([768])
+module.encoder.blocks.11.norm1.bias torch.Size([768])
+module.encoder.blocks.11.norm2.weight torch.Size([768])
+module.encoder.blocks.11.norm2.bias torch.Size([768])
+module.encoder.blocks.11.attn.qkv.weight torch.Size([2304, 768])
+module.encoder.blocks.11.attn.qkv.bias torch.Size([2304])
+module.encoder.blocks.11.attn.proj.weight torch.Size([768, 768])
+module.encoder.blocks.11.attn.proj.bias torch.Size([768])
+module.encoder.blocks.11.mlp.fc1.weight torch.Size([3072, 768])
+module.encoder.blocks.11.mlp.fc1.bias torch.Size([3072])
+module.encoder.blocks.11.mlp.fc2.weight torch.Size([768, 3072])
+module.encoder.blocks.11.mlp.fc2.bias torch.Size([768])
+module.encoder.norm.weight torch.Size([768])
+module.encoder.norm.bias torch.Size([768])
+module.encoder.head.weight torch.Size([20, 768])
+module.encoder.head.bias torch.Size([20])
+module.decoder.proj_patch torch.Size([768, 768])
+module.decoder.proj_classes torch.Size([768, 768])
+module.decoder.M0 torch.Size([768, 1])
+module.decoder.P0 torch.Size([1, 1])
+module.decoder.blocks.0.norm1.weight torch.Size([768])
+module.decoder.blocks.0.norm1.bias torch.Size([768])
+module.decoder.blocks.0.norm2.weight torch.Size([768])
+module.decoder.blocks.0.norm2.bias torch.Size([768])
+module.decoder.blocks.0.attn.qkv.weight torch.Size([2304, 768])
+module.decoder.blocks.0.attn.qkv.bias torch.Size([2304])
+module.decoder.blocks.0.attn.proj.weight torch.Size([768, 768])
+module.decoder.blocks.0.attn.proj.bias torch.Size([768])
+module.decoder.blocks.0.mlp.fc1.weight torch.Size([3072, 768])
+module.decoder.blocks.0.mlp.fc1.bias torch.Size([3072])
+module.decoder.blocks.0.mlp.fc2.weight torch.Size([768, 3072])
+module.decoder.blocks.0.mlp.fc2.bias torch.Size([768])
+module.decoder.blocks.1.norm1.weight torch.Size([768])
+module.decoder.blocks.1.norm1.bias torch.Size([768])
+module.decoder.blocks.1.norm2.weight torch.Size([768])
+module.decoder.blocks.1.norm2.bias torch.Size([768])
+module.decoder.blocks.1.attn.qkv.weight torch.Size([2304, 768])
+module.decoder.blocks.1.attn.qkv.bias torch.Size([2304])
+module.decoder.blocks.1.attn.proj.weight torch.Size([768, 768])
+module.decoder.blocks.1.attn.proj.bias torch.Size([768])
+module.decoder.blocks.1.mlp.fc1.weight torch.Size([3072, 768])
+module.decoder.blocks.1.mlp.fc1.bias torch.Size([3072])
+module.decoder.blocks.1.mlp.fc2.weight torch.Size([768, 3072])
+module.decoder.blocks.1.mlp.fc2.bias torch.Size([768])
+module.decoder.cls_emb.2 torch.Size([1, 1, 768])
+module.decoder.proj_dec.weight torch.Size([768, 768])
+module.decoder.proj_dec.bias torch.Size([768])
+module.decoder.decoder_norm.weight torch.Size([768])
+module.decoder.decoder_norm.bias torch.Size([768])
+module.decoder.mask_norm.weight.0 torch.Size([1])
+module.decoder.mask_norm.weight.1 torch.Size([10])
+module.decoder.mask_norm.weight.2 torch.Size([1])
+module.decoder.mask_norm.bias.0 torch.Size([1])
+module.decoder.mask_norm.bias.1 torch.Size([10])
+module.decoder.mask_norm.bias.2 torch.Size([1])
+module.decoder.importance_matrices.0 torch.Size([768, 12])
+module.decoder.projection_matrices.0 torch.Size([12, 1])
+-----------------------------------------------
+Dataset: voc, Train set: 528, Val set: 75, Test set: 1449
+... train epoch : 1 , iterations : 132 , val_interval : 100
+''''''
