@@ -1,0 +1,696 @@
+2025-04-02 08:28:50,835: 
+configs: {'overlap': True, 'random_seed': 1, 'curr_step': 0, 'task': '10-1', 'gpu_ids': [0, 1], 'ckpt': 'None', 'amp': True, 'train': {'MBS': True, 'weight_transfer': True, 'distill_args': 25, 'backbone': 'vit_b_16', 'train_epochs': 32, 'log_iters': 50, 'crop_val': True, 'loss_type': 'ce_loss', 'pseudo_thresh': 0.7}, 'dataset': {'name': 'voc', 'data_root': '/root/ECCV2024_MBS/data_root/VOCdevkit/VOC2012', 'crop_size': 512, 'resize_range': [512, 2048], 'rescale_range': [0.5, 2.0], 'ignore_index': 255, 'batch_size': 4, 'val_batch_size': 4}, 'optimizer': {'learning_rate': 0.001, 'inc_lr': 0.1, 'weight_decay': 1e-05}}
+2025-04-02 08:28:52,594: Resized position embedding: torch.Size([1, 577, 768]) to torch.Size([1, 1025, 768])
+2025-04-02 08:28:52,594: Position embedding grid-size from [24, 24] to (32, 32)
+2025-04-02 08:29:47,246: [Epochs: 0 Iter: 50] Elasped: 0:00:57; ETA: 7:45:23; LR: 1.000e-03; loss: 1.256700; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:30:36,138: [Epochs: 0 Iter: 100] Elasped: 0:01:46; ETA: 7:11:50; LR: 1.000e-03; loss: 0.907392; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:31:24,639: [Epochs: 0 Iter: 150] Elasped: 0:02:34; ETA: 6:57:24; LR: 1.000e-03; loss: 0.735995; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:32:13,287: [Epochs: 0 Iter: 200] Elasped: 0:03:23; ETA: 6:51:49; LR: 1.000e-03; loss: 0.646592; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:33:02,030: [Epochs: 0 Iter: 250] Elasped: 0:04:12; ETA: 6:48:08; LR: 1.000e-03; loss: 0.589471; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:33:50,633: [Epochs: 0 Iter: 300] Elasped: 0:05:00; ETA: 6:44:04; LR: 1.000e-03; loss: 0.540475; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:34:39,438: [Epochs: 0 Iter: 350] Elasped: 0:05:49; ETA: 6:42:04; LR: 1.000e-03; loss: 0.499190; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:35:28,259: [Epochs: 0 Iter: 400] Elasped: 0:06:38; ETA: 6:40:23; LR: 1.000e-03; loss: 0.465565; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:36:17,510: [Epochs: 0 Iter: 450] Elasped: 0:07:27; ETA: 6:38:53; LR: 1.000e-03; loss: 0.443115; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:37:05,989: [Epochs: 0 Iter: 500] Elasped: 0:08:15; ETA: 6:36:43; LR: 1.000e-03; loss: 0.423930; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:37:54,706: [Epochs: 0 Iter: 550] Elasped: 0:09:04; ETA: 6:35:32; LR: 1.000e-03; loss: 0.405411; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:38:43,608: [Epochs: 0 Iter: 600] Elasped: 0:09:53; ETA: 6:34:24; LR: 1.000e-03; loss: 0.387812; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:39:32,344: [Epochs: 0 Iter: 650] Elasped: 0:10:42; ETA: 6:33:19; LR: 1.000e-03; loss: 0.374658; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:40:21,102: [Epochs: 0 Iter: 700] Elasped: 0:11:31; ETA: 6:32:17; LR: 1.000e-03; loss: 0.366157; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:41:09,829: [Epochs: 0 Iter: 750] Elasped: 0:12:19; ETA: 6:30:45; LR: 1.000e-03; loss: 0.354410; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:42:00,836: [Epochs: 1 Iter: 800] Elasped: 0:13:10; ETA: 6:30:47; LR: 1.000e-03; loss: 0.345740; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:42:49,535: [Epochs: 1 Iter: 850] Elasped: 0:13:59; ETA: 6:29:47; LR: 1.000e-03; loss: 0.337931; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:43:38,460: [Epochs: 1 Iter: 900] Elasped: 0:14:48; ETA: 6:28:48; LR: 1.000e-03; loss: 0.331360; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:44:27,351: [Epochs: 1 Iter: 950] Elasped: 0:15:37; ETA: 6:27:51; LR: 1.000e-03; loss: 0.324482; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:45:16,489: [Epochs: 1 Iter: 1000] Elasped: 0:16:26; ETA: 6:26:54; LR: 1.000e-03; loss: 0.318276; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:46:05,568: [Epochs: 1 Iter: 1050] Elasped: 0:17:15; ETA: 6:25:58; LR: 1.000e-03; loss: 0.312083; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:46:54,212: [Epochs: 1 Iter: 1100] Elasped: 0:18:04; ETA: 6:25:02; LR: 1.000e-03; loss: 0.305525; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:47:43,075: [Epochs: 1 Iter: 1150] Elasped: 0:18:53; ETA: 6:24:08; LR: 1.000e-03; loss: 0.299838; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:48:32,185: [Epochs: 1 Iter: 1200] Elasped: 0:19:42; ETA: 6:23:13; LR: 1.000e-03; loss: 0.295374; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:49:21,243: [Epochs: 1 Iter: 1250] Elasped: 0:20:31; ETA: 6:22:19; LR: 1.000e-03; loss: 0.290837; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:50:10,256: [Epochs: 1 Iter: 1300] Elasped: 0:21:20; ETA: 6:21:26; LR: 1.000e-03; loss: 0.286241; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:50:59,145: [Epochs: 1 Iter: 1350] Elasped: 0:22:09; ETA: 6:20:33; LR: 1.000e-03; loss: 0.281542; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:51:48,135: [Epochs: 1 Iter: 1400] Elasped: 0:22:58; ETA: 6:19:40; LR: 1.000e-03; loss: 0.277672; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:52:37,185: [Epochs: 1 Iter: 1450] Elasped: 0:23:47; ETA: 6:18:47; LR: 1.000e-03; loss: 0.277829; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:53:26,131: [Epochs: 1 Iter: 1500] Elasped: 0:24:36; ETA: 6:17:55; LR: 1.000e-03; loss: 0.273834; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:54:17,466: [Epochs: 2 Iter: 1550] Elasped: 0:25:27; ETA: 6:17:32; LR: 1.000e-03; loss: 0.270321; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:55:06,564: [Epochs: 2 Iter: 1600] Elasped: 0:26:16; ETA: 6:16:39; LR: 1.000e-03; loss: 0.266817; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:55:55,412: [Epochs: 2 Iter: 1650] Elasped: 0:27:05; ETA: 6:15:47; LR: 1.000e-03; loss: 0.263487; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:56:43,970: [Epochs: 2 Iter: 1700] Elasped: 0:27:53; ETA: 6:14:41; LR: 1.000e-03; loss: 0.260320; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:57:32,785: [Epochs: 2 Iter: 1750] Elasped: 0:28:42; ETA: 6:13:49; LR: 1.000e-03; loss: 0.256794; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:58:21,806: [Epochs: 2 Iter: 1800] Elasped: 0:29:31; ETA: 6:12:57; LR: 1.000e-03; loss: 0.253611; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:59:10,662: [Epochs: 2 Iter: 1850] Elasped: 0:30:20; ETA: 6:12:05; LR: 1.000e-03; loss: 0.251566; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 08:59:59,169: [Epochs: 2 Iter: 1900] Elasped: 0:31:09; ETA: 6:11:14; LR: 1.000e-03; loss: 0.248755; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:00:48,022: [Epochs: 2 Iter: 1950] Elasped: 0:31:58; ETA: 6:10:23; LR: 1.000e-03; loss: 0.246037; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:01:36,673: [Epochs: 2 Iter: 2000] Elasped: 0:32:46; ETA: 6:09:20; LR: 1.000e-03; loss: 0.244263; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:02:25,736: [Epochs: 2 Iter: 2050] Elasped: 0:33:35; ETA: 6:08:29; LR: 1.000e-03; loss: 0.241998; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:03:14,647: [Epochs: 2 Iter: 2100] Elasped: 0:34:24; ETA: 6:07:39; LR: 1.000e-03; loss: 0.239174; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:04:03,519: [Epochs: 2 Iter: 2150] Elasped: 0:35:13; ETA: 6:06:48; LR: 1.000e-03; loss: 0.236808; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:04:52,325: [Epochs: 2 Iter: 2200] Elasped: 0:36:02; ETA: 6:05:58; LR: 1.000e-03; loss: 0.235407; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:05:41,214: [Epochs: 2 Iter: 2250] Elasped: 0:36:51; ETA: 6:05:07; LR: 1.000e-03; loss: 0.233566; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:06:30,043: [Epochs: 2 Iter: 2300] Elasped: 0:37:40; ETA: 6:04:17; LR: 1.000e-03; loss: 0.231614; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:07:21,764: [Epochs: 3 Iter: 2350] Elasped: 0:38:31; ETA: 6:03:45; LR: 1.000e-03; loss: 0.229577; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:08:10,450: [Epochs: 3 Iter: 2400] Elasped: 0:39:20; ETA: 6:02:54; LR: 1.000e-03; loss: 0.227347; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:08:59,506: [Epochs: 3 Iter: 2450] Elasped: 0:40:09; ETA: 6:02:04; LR: 1.000e-03; loss: 0.225344; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:09:04,853: Validating...
+2025-04-02 09:10:58,643: 
+Overall Acc: 0.965652
+Mean Acc: 0.939354
+FreqW Acc: 0.939856
+Mean IoU: 0.826086
+Class IoU/Acc:
+\aeroplane: 0.9030 (miou) , 0.9875 (acc) 
+\bicycle: 0.4427 (miou) , 0.9486 (acc) 
+\bird: 0.9445 (miou) , 0.9741 (acc) 
+\boat: 0.7006 (miou) , 0.9465 (acc) 
+\bottle: 0.8503 (miou) , 0.9084 (acc) 
+\bus: 0.9399 (miou) , 0.9773 (acc) 
+\car: 0.9024 (miou) , 0.9540 (acc) 
+\cat: 0.9589 (miou) , 0.9851 (acc) 
+\chair: 0.5478 (miou) , 0.7228 (acc) 
+\cow: 0.9394 (miou) , 0.9586 (acc) 
+
+2025-04-02 09:11:43,577: [Epochs: 3 Iter: 2500] Elasped: 0:42:53; ETA: 6:18:07; LR: 1.000e-03; loss: 0.223701; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:12:32,414: [Epochs: 3 Iter: 2550] Elasped: 0:43:42; ETA: 6:16:55; LR: 1.000e-03; loss: 0.221776; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:13:21,163: [Epochs: 3 Iter: 2600] Elasped: 0:44:31; ETA: 6:15:43; LR: 1.000e-03; loss: 0.219966; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:14:09,990: [Epochs: 3 Iter: 2650] Elasped: 0:45:19; ETA: 6:14:24; LR: 1.000e-03; loss: 0.218080; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:14:58,801: [Epochs: 3 Iter: 2700] Elasped: 0:46:08; ETA: 6:13:14; LR: 1.000e-03; loss: 0.216554; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:15:47,903: [Epochs: 3 Iter: 2750] Elasped: 0:46:57; ETA: 6:12:04; LR: 1.000e-03; loss: 0.215130; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:16:36,859: [Epochs: 3 Iter: 2800] Elasped: 0:47:46; ETA: 6:10:56; LR: 1.000e-03; loss: 0.213813; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:17:25,811: [Epochs: 3 Iter: 2850] Elasped: 0:48:35; ETA: 6:09:48; LR: 1.000e-03; loss: 0.212455; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:18:14,529: [Epochs: 3 Iter: 2900] Elasped: 0:49:24; ETA: 6:08:41; LR: 1.000e-03; loss: 0.211016; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:19:03,102: [Epochs: 3 Iter: 2950] Elasped: 0:50:13; ETA: 6:07:35; LR: 1.000e-03; loss: 0.209641; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:19:51,844: [Epochs: 3 Iter: 3000] Elasped: 0:51:01; ETA: 6:06:22; LR: 1.000e-03; loss: 0.208029; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:20:40,746: [Epochs: 3 Iter: 3050] Elasped: 0:51:50; ETA: 6:05:16; LR: 1.000e-03; loss: 0.206442; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:21:32,587: [Epochs: 4 Iter: 3100] Elasped: 0:52:42; ETA: 6:04:32; LR: 1.000e-03; loss: 0.205152; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:22:21,349: [Epochs: 4 Iter: 3150] Elasped: 0:53:31; ETA: 6:03:28; LR: 1.000e-03; loss: 0.203685; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:23:10,127: [Epochs: 4 Iter: 3200] Elasped: 0:54:20; ETA: 6:02:24; LR: 1.000e-03; loss: 0.202280; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:23:59,063: [Epochs: 4 Iter: 3250] Elasped: 0:55:09; ETA: 6:01:20; LR: 1.000e-03; loss: 0.200771; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:24:48,012: [Epochs: 4 Iter: 3300] Elasped: 0:55:58; ETA: 6:00:17; LR: 1.000e-03; loss: 0.199660; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:25:36,832: [Epochs: 4 Iter: 3350] Elasped: 0:56:46; ETA: 5:59:08; LR: 1.000e-03; loss: 0.198720; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:26:25,400: [Epochs: 4 Iter: 3400] Elasped: 0:57:35; ETA: 5:58:06; LR: 1.000e-03; loss: 0.197965; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:27:14,398: [Epochs: 4 Iter: 3450] Elasped: 0:58:24; ETA: 5:57:04; LR: 1.000e-03; loss: 0.196801; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:28:03,488: [Epochs: 4 Iter: 3500] Elasped: 0:59:13; ETA: 5:56:02; LR: 1.000e-03; loss: 0.195884; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:28:52,605: [Epochs: 4 Iter: 3550] Elasped: 1:00:02; ETA: 5:55:01; LR: 1.000e-03; loss: 0.194911; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:29:41,376: [Epochs: 4 Iter: 3600] Elasped: 1:00:51; ETA: 5:54:00; LR: 1.000e-03; loss: 0.194013; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:30:30,222: [Epochs: 4 Iter: 3650] Elasped: 1:01:40; ETA: 5:53:00; LR: 1.000e-03; loss: 0.193000; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:31:18,722: [Epochs: 4 Iter: 3700] Elasped: 1:02:28; ETA: 5:51:54; LR: 1.000e-03; loss: 0.192115; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:32:07,842: [Epochs: 4 Iter: 3750] Elasped: 1:03:17; ETA: 5:50:54; LR: 1.000e-03; loss: 0.191031; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:32:56,789: [Epochs: 4 Iter: 3800] Elasped: 1:04:06; ETA: 5:49:55; LR: 1.000e-03; loss: 0.189741; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:33:48,432: [Epochs: 5 Iter: 3850] Elasped: 1:04:58; ETA: 5:49:12; LR: 1.000e-03; loss: 0.189148; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:34:37,043: [Epochs: 5 Iter: 3900] Elasped: 1:05:47; ETA: 5:48:12; LR: 1.000e-03; loss: 0.188256; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:35:25,846: [Epochs: 5 Iter: 3950] Elasped: 1:06:35; ETA: 5:47:08; LR: 1.000e-03; loss: 0.187442; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:36:14,680: [Epochs: 5 Iter: 4000] Elasped: 1:07:24; ETA: 5:46:09; LR: 1.000e-03; loss: 0.186587; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:37:03,544: [Epochs: 5 Iter: 4050] Elasped: 1:08:13; ETA: 5:45:11; LR: 1.000e-03; loss: 0.185750; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:37:52,161: [Epochs: 5 Iter: 4100] Elasped: 1:09:02; ETA: 5:44:13; LR: 1.000e-03; loss: 0.184695; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:38:40,921: [Epochs: 5 Iter: 4150] Elasped: 1:09:50; ETA: 5:43:10; LR: 1.000e-03; loss: 0.183926; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:39:30,000: [Epochs: 5 Iter: 4200] Elasped: 1:10:40; ETA: 5:42:17; LR: 1.000e-03; loss: 0.183080; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:40:18,524: [Epochs: 5 Iter: 4250] Elasped: 1:11:28; ETA: 5:41:15; LR: 1.000e-03; loss: 0.182361; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:41:07,224: [Epochs: 5 Iter: 4300] Elasped: 1:12:17; ETA: 5:40:18; LR: 1.000e-03; loss: 0.181402; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:41:55,782: [Epochs: 5 Iter: 4350] Elasped: 1:13:05; ETA: 5:39:16; LR: 1.000e-03; loss: 0.180700; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:42:44,862: [Epochs: 5 Iter: 4400] Elasped: 1:13:54; ETA: 5:38:19; LR: 1.000e-03; loss: 0.179939; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:43:33,578: [Epochs: 5 Iter: 4450] Elasped: 1:14:43; ETA: 5:37:23; LR: 1.000e-03; loss: 0.179269; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:44:22,489: [Epochs: 5 Iter: 4500] Elasped: 1:15:32; ETA: 5:36:26; LR: 1.000e-03; loss: 0.178438; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:45:11,295: [Epochs: 5 Iter: 4550] Elasped: 1:16:21; ETA: 5:35:30; LR: 1.000e-03; loss: 0.178081; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:45:59,863: [Epochs: 5 Iter: 4600] Elasped: 1:17:09; ETA: 5:34:29; LR: 1.000e-03; loss: 0.177362; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:46:51,137: [Epochs: 6 Iter: 4650] Elasped: 1:18:01; ETA: 5:33:46; LR: 1.000e-03; loss: 0.176488; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:47:40,555: [Epochs: 6 Iter: 4700] Elasped: 1:18:50; ETA: 5:32:50; LR: 1.000e-03; loss: 0.175795; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:48:29,481: [Epochs: 6 Iter: 4750] Elasped: 1:19:39; ETA: 5:31:54; LR: 1.000e-03; loss: 0.175147; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:49:18,327: [Epochs: 6 Iter: 4800] Elasped: 1:20:28; ETA: 5:30:59; LR: 1.000e-03; loss: 0.174611; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:50:07,334: [Epochs: 6 Iter: 4850] Elasped: 1:21:17; ETA: 5:30:03; LR: 1.000e-03; loss: 0.173958; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:50:55,974: [Epochs: 6 Iter: 4900] Elasped: 1:22:05; ETA: 5:29:04; LR: 1.000e-03; loss: 0.173259; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:51:05,011: Validating...
+2025-04-02 09:52:58,236: 
+Overall Acc: 0.962484
+Mean Acc: 0.913706
+FreqW Acc: 0.932661
+Mean IoU: 0.812177
+Class IoU/Acc:
+\aeroplane: 0.8988 (miou) , 0.9816 (acc) 
+\bicycle: 0.4508 (miou) , 0.9052 (acc) 
+\bird: 0.9232 (miou) , 0.9806 (acc) 
+\boat: 0.7546 (miou) , 0.9265 (acc) 
+\bottle: 0.8372 (miou) , 0.8910 (acc) 
+\bus: 0.8761 (miou) , 0.8876 (acc) 
+\car: 0.8508 (miou) , 0.9572 (acc) 
+\cat: 0.9404 (miou) , 0.9656 (acc) 
+\chair: 0.5180 (miou) , 0.6391 (acc) 
+\cow: 0.9290 (miou) , 0.9421 (acc) 
+
+2025-04-02 09:53:38,068: [Epochs: 6 Iter: 4950] Elasped: 1:24:48; ETA: 5:35:40; LR: 1.000e-03; loss: 0.172499; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:54:27,122: [Epochs: 6 Iter: 5000] Elasped: 1:25:37; ETA: 5:34:39; LR: 1.000e-03; loss: 0.171898; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:55:15,851: [Epochs: 6 Iter: 5050] Elasped: 1:26:25; ETA: 5:33:35; LR: 1.000e-03; loss: 0.171276; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:56:04,780: [Epochs: 6 Iter: 5100] Elasped: 1:27:14; ETA: 5:32:34; LR: 1.000e-03; loss: 0.170680; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:56:53,790: [Epochs: 6 Iter: 5150] Elasped: 1:28:03; ETA: 5:31:34; LR: 1.000e-03; loss: 0.170085; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:57:42,821: [Epochs: 6 Iter: 5200] Elasped: 1:28:52; ETA: 5:30:35; LR: 1.000e-03; loss: 0.169485; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:58:31,626: [Epochs: 6 Iter: 5250] Elasped: 1:29:41; ETA: 5:29:35; LR: 1.000e-03; loss: 0.169014; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 09:59:20,408: [Epochs: 6 Iter: 5300] Elasped: 1:30:30; ETA: 5:28:36; LR: 1.000e-03; loss: 0.168517; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:00:09,028: [Epochs: 6 Iter: 5350] Elasped: 1:31:19; ETA: 5:27:36; LR: 1.000e-03; loss: 0.168187; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:01:00,432: [Epochs: 7 Iter: 5400] Elasped: 1:32:10; ETA: 5:26:44; LR: 1.000e-03; loss: 0.167603; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:01:49,369: [Epochs: 7 Iter: 5450] Elasped: 1:32:59; ETA: 5:25:45; LR: 1.000e-03; loss: 0.167127; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:02:38,086: [Epochs: 7 Iter: 5500] Elasped: 1:33:48; ETA: 5:24:47; LR: 1.000e-03; loss: 0.166439; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:03:26,958: [Epochs: 7 Iter: 5550] Elasped: 1:34:36; ETA: 5:23:45; LR: 1.000e-03; loss: 0.166016; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:04:15,915: [Epochs: 7 Iter: 5600] Elasped: 1:35:25; ETA: 5:22:46; LR: 1.000e-03; loss: 0.165314; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:05:04,582: [Epochs: 7 Iter: 5650] Elasped: 1:36:14; ETA: 5:21:48; LR: 1.000e-03; loss: 0.164660; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:05:53,888: [Epochs: 7 Iter: 5700] Elasped: 1:37:03; ETA: 5:20:50; LR: 1.000e-03; loss: 0.164158; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:06:42,659: [Epochs: 7 Iter: 5750] Elasped: 1:37:52; ETA: 5:19:52; LR: 1.000e-03; loss: 0.163583; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:07:31,314: [Epochs: 7 Iter: 5800] Elasped: 1:38:41; ETA: 5:18:55; LR: 1.000e-03; loss: 0.163025; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:08:20,022: [Epochs: 7 Iter: 5850] Elasped: 1:39:30; ETA: 5:17:57; LR: 1.000e-03; loss: 0.162664; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:09:08,795: [Epochs: 7 Iter: 5900] Elasped: 1:40:18; ETA: 5:16:56; LR: 1.000e-03; loss: 0.162183; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:09:57,626: [Epochs: 7 Iter: 5950] Elasped: 1:41:07; ETA: 5:15:59; LR: 1.000e-03; loss: 0.161617; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:10:46,302: [Epochs: 7 Iter: 6000] Elasped: 1:41:56; ETA: 5:15:02; LR: 1.000e-03; loss: 0.161080; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:11:35,242: [Epochs: 7 Iter: 6050] Elasped: 1:42:45; ETA: 5:14:05; LR: 1.000e-03; loss: 0.160634; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:12:24,086: [Epochs: 7 Iter: 6100] Elasped: 1:43:34; ETA: 5:13:08; LR: 1.000e-03; loss: 0.160062; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:13:15,488: [Epochs: 8 Iter: 6150] Elasped: 1:44:25; ETA: 5:12:17; LR: 1.000e-03; loss: 0.159640; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:14:04,419: [Epochs: 8 Iter: 6200] Elasped: 1:45:14; ETA: 5:11:21; LR: 1.000e-03; loss: 0.159213; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:14:53,422: [Epochs: 8 Iter: 6250] Elasped: 1:46:03; ETA: 5:10:24; LR: 1.000e-03; loss: 0.158605; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:15:42,274: [Epochs: 8 Iter: 6300] Elasped: 1:46:52; ETA: 5:09:28; LR: 1.000e-03; loss: 0.158144; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:16:30,981: [Epochs: 8 Iter: 6350] Elasped: 1:47:40; ETA: 5:08:29; LR: 1.000e-03; loss: 0.157651; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:17:19,839: [Epochs: 8 Iter: 6400] Elasped: 1:48:29; ETA: 5:07:33; LR: 1.000e-03; loss: 0.157263; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:18:08,894: [Epochs: 8 Iter: 6450] Elasped: 1:49:18; ETA: 5:06:36; LR: 1.000e-03; loss: 0.156835; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:18:57,536: [Epochs: 8 Iter: 6500] Elasped: 1:50:07; ETA: 5:05:41; LR: 1.000e-03; loss: 0.156364; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:19:46,322: [Epochs: 8 Iter: 6550] Elasped: 1:50:56; ETA: 5:04:45; LR: 1.000e-03; loss: 0.156030; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:20:35,347: [Epochs: 8 Iter: 6600] Elasped: 1:51:45; ETA: 5:03:49; LR: 1.000e-03; loss: 0.155542; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:21:24,161: [Epochs: 8 Iter: 6650] Elasped: 1:52:34; ETA: 5:02:53; LR: 1.000e-03; loss: 0.155037; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:22:12,821: [Epochs: 8 Iter: 6700] Elasped: 1:53:22; ETA: 5:01:55; LR: 1.000e-03; loss: 0.154555; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:23:01,897: [Epochs: 8 Iter: 6750] Elasped: 1:54:11; ETA: 5:01:00; LR: 1.000e-03; loss: 0.154074; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:23:50,743: [Epochs: 8 Iter: 6800] Elasped: 1:55:00; ETA: 5:00:04; LR: 1.000e-03; loss: 0.153672; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:24:39,474: [Epochs: 8 Iter: 6850] Elasped: 1:55:49; ETA: 4:59:09; LR: 1.000e-03; loss: 0.153199; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:25:28,358: [Epochs: 8 Iter: 6900] Elasped: 1:56:38; ETA: 4:58:14; LR: 1.000e-03; loss: 0.152729; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:26:20,367: [Epochs: 9 Iter: 6950] Elasped: 1:57:30; ETA: 4:57:27; LR: 1.000e-03; loss: 0.152389; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:27:09,427: [Epochs: 9 Iter: 7000] Elasped: 1:58:19; ETA: 4:56:32; LR: 1.000e-03; loss: 0.151901; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:27:58,409: [Epochs: 9 Iter: 7050] Elasped: 1:59:08; ETA: 4:55:37; LR: 1.000e-03; loss: 0.151491; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:28:47,336: [Epochs: 9 Iter: 7100] Elasped: 1:59:57; ETA: 4:54:42; LR: 1.000e-03; loss: 0.151025; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:29:36,188: [Epochs: 9 Iter: 7150] Elasped: 2:00:46; ETA: 4:53:47; LR: 1.000e-03; loss: 0.150581; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:30:25,189: [Epochs: 9 Iter: 7200] Elasped: 2:01:35; ETA: 4:52:52; LR: 1.000e-03; loss: 0.150140; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:31:13,875: [Epochs: 9 Iter: 7250] Elasped: 2:02:23; ETA: 4:51:55; LR: 1.000e-03; loss: 0.149795; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:32:03,003: [Epochs: 9 Iter: 7300] Elasped: 2:03:13; ETA: 4:51:03; LR: 1.000e-03; loss: 0.149475; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:32:51,908: [Epochs: 9 Iter: 7350] Elasped: 2:04:01; ETA: 4:50:06; LR: 1.000e-03; loss: 0.149076; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:33:04,630: Validating...
+2025-04-02 10:34:58,022: 
+Overall Acc: 0.969650
+Mean Acc: 0.942361
+FreqW Acc: 0.946201
+Mean IoU: 0.843507
+Class IoU/Acc:
+\aeroplane: 0.9270 (miou) , 0.9789 (acc) 
+\bicycle: 0.4451 (miou) , 0.9461 (acc) 
+\bird: 0.9362 (miou) , 0.9822 (acc) 
+\boat: 0.7964 (miou) , 0.9262 (acc) 
+\bottle: 0.8857 (miou) , 0.9524 (acc) 
+\bus: 0.9339 (miou) , 0.9681 (acc) 
+\car: 0.8992 (miou) , 0.9631 (acc) 
+\cat: 0.9566 (miou) , 0.9846 (acc) 
+\chair: 0.5902 (miou) , 0.7350 (acc) 
+\cow: 0.9454 (miou) , 0.9548 (acc) 
+
+2025-04-02 10:35:36,262: [Epochs: 9 Iter: 7400] Elasped: 2:06:46; ETA: 4:53:41; LR: 1.000e-03; loss: 0.148656; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:36:24,979: [Epochs: 9 Iter: 7450] Elasped: 2:07:34; ETA: 4:52:42; LR: 1.000e-03; loss: 0.148184; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:37:13,620: [Epochs: 9 Iter: 7500] Elasped: 2:08:23; ETA: 4:51:45; LR: 1.000e-03; loss: 0.148295; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:38:01,970: [Epochs: 9 Iter: 7550] Elasped: 2:09:11; ETA: 4:50:46; LR: 1.000e-03; loss: 0.148074; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:38:50,825: [Epochs: 9 Iter: 7600] Elasped: 2:10:00; ETA: 4:49:49; LR: 1.000e-03; loss: 0.147740; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:39:39,745: [Epochs: 9 Iter: 7650] Elasped: 2:10:49; ETA: 4:48:53; LR: 1.000e-03; loss: 0.147333; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:40:31,668: [Epochs: 10 Iter: 7700] Elasped: 2:11:41; ETA: 4:48:03; LR: 1.000e-03; loss: 0.147028; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:41:20,559: [Epochs: 10 Iter: 7750] Elasped: 2:12:30; ETA: 4:47:07; LR: 1.000e-03; loss: 0.146709; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:42:09,733: [Epochs: 10 Iter: 7800] Elasped: 2:13:19; ETA: 4:46:11; LR: 1.000e-03; loss: 0.146387; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:42:58,894: [Epochs: 10 Iter: 7850] Elasped: 2:14:08; ETA: 4:45:15; LR: 1.000e-03; loss: 0.145964; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:43:47,490: [Epochs: 10 Iter: 7900] Elasped: 2:14:57; ETA: 4:44:19; LR: 1.000e-03; loss: 0.145522; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:44:36,764: [Epochs: 10 Iter: 7950] Elasped: 2:15:46; ETA: 4:43:23; LR: 1.000e-03; loss: 0.145092; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:45:25,615: [Epochs: 10 Iter: 8000] Elasped: 2:16:35; ETA: 4:42:27; LR: 1.000e-03; loss: 0.144747; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:46:14,421: [Epochs: 10 Iter: 8050] Elasped: 2:17:24; ETA: 4:41:31; LR: 1.000e-03; loss: 0.144373; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:47:03,531: [Epochs: 10 Iter: 8100] Elasped: 2:18:13; ETA: 4:40:35; LR: 1.000e-03; loss: 0.144091; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:47:52,350: [Epochs: 10 Iter: 8150] Elasped: 2:19:02; ETA: 4:39:40; LR: 1.000e-03; loss: 0.143834; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:48:40,906: [Epochs: 10 Iter: 8200] Elasped: 2:19:50; ETA: 4:38:42; LR: 1.000e-03; loss: 0.143660; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:49:29,918: [Epochs: 10 Iter: 8250] Elasped: 2:20:39; ETA: 4:37:47; LR: 1.000e-03; loss: 0.143320; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:50:18,702: [Epochs: 10 Iter: 8300] Elasped: 2:21:28; ETA: 4:36:51; LR: 1.000e-03; loss: 0.143007; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:51:07,320: [Epochs: 10 Iter: 8350] Elasped: 2:22:17; ETA: 4:35:56; LR: 1.000e-03; loss: 0.142739; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:51:56,312: [Epochs: 10 Iter: 8400] Elasped: 2:23:06; ETA: 4:35:01; LR: 1.000e-03; loss: 0.142492; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:52:47,999: [Epochs: 11 Iter: 8450] Elasped: 2:23:57; ETA: 4:34:10; LR: 1.000e-03; loss: 0.142161; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:53:37,008: [Epochs: 11 Iter: 8500] Elasped: 2:24:47; ETA: 4:33:16; LR: 1.000e-03; loss: 0.141942; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:54:25,926: [Epochs: 11 Iter: 8550] Elasped: 2:25:35; ETA: 4:32:20; LR: 1.000e-03; loss: 0.141760; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:55:14,859: [Epochs: 11 Iter: 8600] Elasped: 2:26:24; ETA: 4:31:25; LR: 1.000e-03; loss: 0.141337; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:56:03,826: [Epochs: 11 Iter: 8650] Elasped: 2:27:13; ETA: 4:30:30; LR: 1.000e-03; loss: 0.140971; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:56:52,625: [Epochs: 11 Iter: 8700] Elasped: 2:28:02; ETA: 4:29:35; LR: 1.000e-03; loss: 0.140738; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:57:41,339: [Epochs: 11 Iter: 8750] Elasped: 2:28:51; ETA: 4:28:40; LR: 1.000e-03; loss: 0.140465; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:58:30,186: [Epochs: 11 Iter: 8800] Elasped: 2:29:40; ETA: 4:27:46; LR: 1.000e-03; loss: 0.140169; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 10:59:19,319: [Epochs: 11 Iter: 8850] Elasped: 2:30:29; ETA: 4:26:51; LR: 1.000e-03; loss: 0.139978; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:00:07,922: [Epochs: 11 Iter: 8900] Elasped: 2:31:17; ETA: 4:25:55; LR: 1.000e-03; loss: 0.139966; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:00:56,810: [Epochs: 11 Iter: 8950] Elasped: 2:32:06; ETA: 4:25:00; LR: 1.000e-03; loss: 0.139796; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:01:45,570: [Epochs: 11 Iter: 9000] Elasped: 2:32:55; ETA: 4:24:06; LR: 1.000e-03; loss: 0.139512; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:02:34,498: [Epochs: 11 Iter: 9050] Elasped: 2:33:44; ETA: 4:23:11; LR: 1.000e-03; loss: 0.139206; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:03:23,373: [Epochs: 11 Iter: 9100] Elasped: 2:34:33; ETA: 4:22:17; LR: 1.000e-03; loss: 0.138926; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:04:11,920: [Epochs: 11 Iter: 9150] Elasped: 2:35:21; ETA: 4:21:21; LR: 1.000e-03; loss: 0.138597; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:05:00,888: [Epochs: 11 Iter: 9200] Elasped: 2:36:10; ETA: 4:20:27; LR: 1.000e-03; loss: 0.138361; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:05:52,636: [Epochs: 12 Iter: 9250] Elasped: 2:37:02; ETA: 4:19:38; LR: 1.000e-03; loss: 0.138126; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:06:41,185: [Epochs: 12 Iter: 9300] Elasped: 2:37:51; ETA: 4:18:44; LR: 1.000e-03; loss: 0.137866; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:07:30,305: [Epochs: 12 Iter: 9350] Elasped: 2:38:40; ETA: 4:17:50; LR: 1.000e-03; loss: 0.137626; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:08:19,063: [Epochs: 12 Iter: 9400] Elasped: 2:39:29; ETA: 4:16:56; LR: 1.000e-03; loss: 0.137464; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:09:07,673: [Epochs: 12 Iter: 9450] Elasped: 2:40:17; ETA: 4:16:00; LR: 1.000e-03; loss: 0.137230; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:09:56,812: [Epochs: 12 Iter: 9500] Elasped: 2:41:06; ETA: 4:15:06; LR: 1.000e-03; loss: 0.137004; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:10:45,997: [Epochs: 12 Iter: 9550] Elasped: 2:41:55; ETA: 4:14:13; LR: 1.000e-03; loss: 0.136720; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:11:34,662: [Epochs: 12 Iter: 9600] Elasped: 2:42:44; ETA: 4:13:19; LR: 1.000e-03; loss: 0.136481; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:12:23,230: [Epochs: 12 Iter: 9650] Elasped: 2:43:33; ETA: 4:12:25; LR: 1.000e-03; loss: 0.136229; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:13:11,992: [Epochs: 12 Iter: 9700] Elasped: 2:44:21; ETA: 4:11:30; LR: 1.000e-03; loss: 0.136041; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:14:00,486: [Epochs: 12 Iter: 9750] Elasped: 2:45:10; ETA: 4:10:36; LR: 1.000e-03; loss: 0.135796; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:14:49,197: [Epochs: 12 Iter: 9800] Elasped: 2:45:59; ETA: 4:09:43; LR: 1.000e-03; loss: 0.135571; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:15:05,631: Validating...
+2025-04-02 11:16:59,192: 
+Overall Acc: 0.965131
+Mean Acc: 0.942825
+FreqW Acc: 0.939705
+Mean IoU: 0.829285
+Class IoU/Acc:
+\aeroplane: 0.9121 (miou) , 0.9750 (acc) 
+\bicycle: 0.4359 (miou) , 0.9475 (acc) 
+\bird: 0.9433 (miou) , 0.9715 (acc) 
+\boat: 0.7410 (miou) , 0.9219 (acc) 
+\bottle: 0.8800 (miou) , 0.9380 (acc) 
+\bus: 0.9194 (miou) , 0.9555 (acc) 
+\car: 0.8829 (miou) , 0.9515 (acc) 
+\cat: 0.9645 (miou) , 0.9847 (acc) 
+\chair: 0.5297 (miou) , 0.7858 (acc) 
+\cow: 0.9560 (miou) , 0.9707 (acc) 
+
+2025-04-02 11:17:31,520: [Epochs: 12 Iter: 9850] Elasped: 2:48:41; ETA: 4:11:38; LR: 1.000e-03; loss: 0.135567; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:18:20,034: [Epochs: 12 Iter: 9900] Elasped: 2:49:30; ETA: 4:10:43; LR: 1.000e-03; loss: 0.135497; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:19:08,544: [Epochs: 12 Iter: 9950] Elasped: 2:50:18; ETA: 4:09:47; LR: 1.000e-03; loss: 0.135267; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:20:00,104: [Epochs: 13 Iter: 10000] Elasped: 2:51:10; ETA: 4:08:56; LR: 1.000e-03; loss: 0.135049; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:20:49,004: [Epochs: 13 Iter: 10050] Elasped: 2:51:59; ETA: 4:08:01; LR: 1.000e-03; loss: 0.134872; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:21:37,867: [Epochs: 13 Iter: 10100] Elasped: 2:52:47; ETA: 4:07:05; LR: 1.000e-03; loss: 0.134688; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:22:26,960: [Epochs: 13 Iter: 10150] Elasped: 2:53:36; ETA: 4:06:11; LR: 1.000e-03; loss: 0.134457; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:23:15,907: [Epochs: 13 Iter: 10200] Elasped: 2:54:25; ETA: 4:05:16; LR: 1.000e-03; loss: 0.134221; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:24:04,760: [Epochs: 13 Iter: 10250] Elasped: 2:55:14; ETA: 4:04:22; LR: 1.000e-03; loss: 0.134012; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:24:53,900: [Epochs: 13 Iter: 10300] Elasped: 2:56:03; ETA: 4:03:27; LR: 1.000e-03; loss: 0.133841; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:25:42,824: [Epochs: 13 Iter: 10350] Elasped: 2:56:52; ETA: 4:02:33; LR: 1.000e-03; loss: 0.133689; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:26:31,951: [Epochs: 13 Iter: 10400] Elasped: 2:57:41; ETA: 4:01:38; LR: 1.000e-03; loss: 0.133410; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:27:20,726: [Epochs: 13 Iter: 10450] Elasped: 2:58:30; ETA: 4:00:44; LR: 1.000e-03; loss: 0.133166; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:28:09,801: [Epochs: 13 Iter: 10500] Elasped: 2:59:19; ETA: 3:59:50; LR: 1.000e-03; loss: 0.132945; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:28:58,698: [Epochs: 13 Iter: 10550] Elasped: 3:00:08; ETA: 3:58:56; LR: 1.000e-03; loss: 0.132675; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:29:47,601: [Epochs: 13 Iter: 10600] Elasped: 3:00:57; ETA: 3:58:02; LR: 1.000e-03; loss: 0.132378; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:30:36,434: [Epochs: 13 Iter: 10650] Elasped: 3:01:46; ETA: 3:57:07; LR: 1.000e-03; loss: 0.132140; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:31:25,534: [Epochs: 13 Iter: 10700] Elasped: 3:02:35; ETA: 3:56:13; LR: 1.000e-03; loss: 0.131878; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:32:17,283: [Epochs: 14 Iter: 10750] Elasped: 3:03:27; ETA: 3:55:23; LR: 1.000e-03; loss: 0.131755; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:33:06,261: [Epochs: 14 Iter: 10800] Elasped: 3:04:16; ETA: 3:54:29; LR: 1.000e-03; loss: 0.131671; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:33:54,944: [Epochs: 14 Iter: 10850] Elasped: 3:05:04; ETA: 3:53:34; LR: 1.000e-03; loss: 0.131480; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:34:43,862: [Epochs: 14 Iter: 10900] Elasped: 3:05:53; ETA: 3:52:40; LR: 1.000e-03; loss: 0.131308; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:35:32,644: [Epochs: 14 Iter: 10950] Elasped: 3:06:42; ETA: 3:51:46; LR: 1.000e-03; loss: 0.131072; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:36:21,196: [Epochs: 14 Iter: 11000] Elasped: 3:07:31; ETA: 3:50:53; LR: 1.000e-03; loss: 0.130943; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:37:09,840: [Epochs: 14 Iter: 11050] Elasped: 3:08:19; ETA: 3:49:58; LR: 1.000e-03; loss: 0.130752; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:37:58,558: [Epochs: 14 Iter: 11100] Elasped: 3:09:08; ETA: 3:49:04; LR: 1.000e-03; loss: 0.130573; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:38:47,450: [Epochs: 14 Iter: 11150] Elasped: 3:09:57; ETA: 3:48:10; LR: 1.000e-03; loss: 0.130329; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:39:36,198: [Epochs: 14 Iter: 11200] Elasped: 3:10:46; ETA: 3:47:17; LR: 1.000e-03; loss: 0.130132; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:40:24,966: [Epochs: 14 Iter: 11250] Elasped: 3:11:34; ETA: 3:46:22; LR: 1.000e-03; loss: 0.129919; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:41:13,550: [Epochs: 14 Iter: 11300] Elasped: 3:12:23; ETA: 3:45:28; LR: 1.000e-03; loss: 0.129757; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:42:02,510: [Epochs: 14 Iter: 11350] Elasped: 3:13:12; ETA: 3:44:35; LR: 1.000e-03; loss: 0.129558; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:42:51,229: [Epochs: 14 Iter: 11400] Elasped: 3:14:01; ETA: 3:43:41; LR: 1.000e-03; loss: 0.129354; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:43:39,774: [Epochs: 14 Iter: 11450] Elasped: 3:14:49; ETA: 3:42:47; LR: 1.000e-03; loss: 0.129134; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:44:28,505: [Epochs: 14 Iter: 11500] Elasped: 3:15:38; ETA: 3:41:53; LR: 1.000e-03; loss: 0.128906; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:45:19,804: [Epochs: 15 Iter: 11550] Elasped: 3:16:29; ETA: 3:41:02; LR: 1.000e-03; loss: 0.128635; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:46:08,604: [Epochs: 15 Iter: 11600] Elasped: 3:17:18; ETA: 3:40:09; LR: 1.000e-03; loss: 0.128410; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:46:57,493: [Epochs: 15 Iter: 11650] Elasped: 3:18:07; ETA: 3:39:16; LR: 1.000e-03; loss: 0.128234; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:47:46,450: [Epochs: 15 Iter: 11700] Elasped: 3:18:56; ETA: 3:38:23; LR: 1.000e-03; loss: 0.128060; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:48:35,221: [Epochs: 15 Iter: 11750] Elasped: 3:19:45; ETA: 3:37:29; LR: 1.000e-03; loss: 0.127813; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:49:24,038: [Epochs: 15 Iter: 11800] Elasped: 3:20:34; ETA: 3:36:36; LR: 1.000e-03; loss: 0.127633; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:50:13,267: [Epochs: 15 Iter: 11850] Elasped: 3:21:23; ETA: 3:35:43; LR: 1.000e-03; loss: 0.127395; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:51:02,091: [Epochs: 15 Iter: 11900] Elasped: 3:22:12; ETA: 3:34:50; LR: 1.000e-03; loss: 0.127134; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:51:50,479: [Epochs: 15 Iter: 11950] Elasped: 3:23:00; ETA: 3:33:56; LR: 1.000e-03; loss: 0.126929; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:52:39,209: [Epochs: 15 Iter: 12000] Elasped: 3:23:49; ETA: 3:33:03; LR: 1.000e-03; loss: 0.126667; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:53:27,937: [Epochs: 15 Iter: 12050] Elasped: 3:24:37; ETA: 3:32:09; LR: 1.000e-03; loss: 0.126414; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:54:16,853: [Epochs: 15 Iter: 12100] Elasped: 3:25:26; ETA: 3:31:16; LR: 1.000e-03; loss: 0.126166; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:55:06,035: [Epochs: 15 Iter: 12150] Elasped: 3:26:16; ETA: 3:30:24; LR: 1.000e-03; loss: 0.125929; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:55:54,826: [Epochs: 15 Iter: 12200] Elasped: 3:27:04; ETA: 3:29:30; LR: 1.000e-03; loss: 0.125711; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:56:44,032: [Epochs: 15 Iter: 12250] Elasped: 3:27:54; ETA: 3:28:38; LR: 1.000e-03; loss: 0.125515; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 11:57:04,394: Validating...
+2025-04-02 11:58:56,892: 
+Overall Acc: 0.969214
+Mean Acc: 0.932536
+FreqW Acc: 0.945393
+Mean IoU: 0.838926
+Class IoU/Acc:
+\aeroplane: 0.9348 (miou) , 0.9775 (acc) 
+\bicycle: 0.4476 (miou) , 0.9195 (acc) 
+\bird: 0.9404 (miou) , 0.9672 (acc) 
+\boat: 0.7693 (miou) , 0.9153 (acc) 
+\bottle: 0.8888 (miou) , 0.9496 (acc) 
+\bus: 0.9443 (miou) , 0.9778 (acc) 
+\car: 0.8999 (miou) , 0.9761 (acc) 
+\cat: 0.9671 (miou) , 0.9896 (acc) 
+\chair: 0.5129 (miou) , 0.6353 (acc) 
+\cow: 0.9614 (miou) , 0.9752 (acc) 
+
+2025-04-02 11:59:28,067: [Epochs: 16 Iter: 12300] Elasped: 3:30:38; ETA: 3:29:40; LR: 1.000e-03; loss: 0.125275; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:00:16,714: [Epochs: 16 Iter: 12350] Elasped: 3:31:26; ETA: 3:28:45; LR: 1.000e-03; loss: 0.125014; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:01:05,598: [Epochs: 16 Iter: 12400] Elasped: 3:32:15; ETA: 3:27:52; LR: 1.000e-03; loss: 0.124812; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:01:54,078: [Epochs: 16 Iter: 12450] Elasped: 3:33:04; ETA: 3:26:58; LR: 1.000e-03; loss: 0.124656; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:02:42,688: [Epochs: 16 Iter: 12500] Elasped: 3:33:52; ETA: 3:26:03; LR: 1.000e-03; loss: 0.124422; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:03:31,284: [Epochs: 16 Iter: 12550] Elasped: 3:34:41; ETA: 3:25:10; LR: 1.000e-03; loss: 0.124207; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:04:20,027: [Epochs: 16 Iter: 12600] Elasped: 3:35:30; ETA: 3:24:16; LR: 1.000e-03; loss: 0.123984; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:05:08,817: [Epochs: 16 Iter: 12650] Elasped: 3:36:18; ETA: 3:23:22; LR: 1.000e-03; loss: 0.123778; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:05:57,858: [Epochs: 16 Iter: 12700] Elasped: 3:37:07; ETA: 3:22:28; LR: 1.000e-03; loss: 0.123594; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:06:46,686: [Epochs: 16 Iter: 12750] Elasped: 3:37:56; ETA: 3:21:35; LR: 1.000e-03; loss: 0.123383; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:07:35,242: [Epochs: 16 Iter: 12800] Elasped: 3:38:45; ETA: 3:20:42; LR: 1.000e-03; loss: 0.123265; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:08:24,166: [Epochs: 16 Iter: 12850] Elasped: 3:39:34; ETA: 3:19:48; LR: 1.000e-03; loss: 0.123093; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:09:12,941: [Epochs: 16 Iter: 12900] Elasped: 3:40:22; ETA: 3:18:54; LR: 1.000e-03; loss: 0.122921; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:10:01,525: [Epochs: 16 Iter: 12950] Elasped: 3:41:11; ETA: 3:18:01; LR: 1.000e-03; loss: 0.122779; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:10:50,384: [Epochs: 16 Iter: 13000] Elasped: 3:42:00; ETA: 3:17:08; LR: 1.000e-03; loss: 0.122592; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:11:42,301: [Epochs: 17 Iter: 13050] Elasped: 3:42:52; ETA: 3:16:17; LR: 1.000e-03; loss: 0.122438; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:12:31,174: [Epochs: 17 Iter: 13100] Elasped: 3:43:41; ETA: 3:15:24; LR: 1.000e-03; loss: 0.122265; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:13:20,063: [Epochs: 17 Iter: 13150] Elasped: 3:44:30; ETA: 3:14:31; LR: 1.000e-03; loss: 0.122038; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:14:08,856: [Epochs: 17 Iter: 13200] Elasped: 3:45:18; ETA: 3:13:37; LR: 1.000e-03; loss: 0.121846; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:14:57,800: [Epochs: 17 Iter: 13250] Elasped: 3:46:07; ETA: 3:12:44; LR: 1.000e-03; loss: 0.121654; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:15:46,556: [Epochs: 17 Iter: 13300] Elasped: 3:46:56; ETA: 3:11:51; LR: 1.000e-03; loss: 0.121454; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:16:35,282: [Epochs: 17 Iter: 13350] Elasped: 3:47:45; ETA: 3:10:58; LR: 1.000e-03; loss: 0.121276; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:17:24,188: [Epochs: 17 Iter: 13400] Elasped: 3:48:34; ETA: 3:10:05; LR: 1.000e-03; loss: 0.121123; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:18:13,195: [Epochs: 17 Iter: 13450] Elasped: 3:49:23; ETA: 3:09:12; LR: 1.000e-03; loss: 0.120904; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:19:01,757: [Epochs: 17 Iter: 13500] Elasped: 3:50:11; ETA: 3:08:18; LR: 1.000e-03; loss: 0.120695; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:19:50,602: [Epochs: 17 Iter: 13550] Elasped: 3:51:00; ETA: 3:07:25; LR: 1.000e-03; loss: 0.120538; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:20:39,487: [Epochs: 17 Iter: 13600] Elasped: 3:51:49; ETA: 3:06:32; LR: 1.000e-03; loss: 0.120386; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:21:28,060: [Epochs: 17 Iter: 13650] Elasped: 3:52:38; ETA: 3:05:39; LR: 1.000e-03; loss: 0.120284; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:22:16,929: [Epochs: 17 Iter: 13700] Elasped: 3:53:26; ETA: 3:04:46; LR: 1.000e-03; loss: 0.120119; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:23:05,949: [Epochs: 17 Iter: 13750] Elasped: 3:54:15; ETA: 3:03:53; LR: 1.000e-03; loss: 0.119958; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:23:54,893: [Epochs: 17 Iter: 13800] Elasped: 3:55:04; ETA: 3:03:00; LR: 1.000e-03; loss: 0.119803; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:24:46,054: [Epochs: 18 Iter: 13850] Elasped: 3:55:56; ETA: 3:02:10; LR: 1.000e-03; loss: 0.119590; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:25:34,899: [Epochs: 18 Iter: 13900] Elasped: 3:56:44; ETA: 3:01:16; LR: 1.000e-03; loss: 0.119390; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:26:23,732: [Epochs: 18 Iter: 13950] Elasped: 3:57:33; ETA: 3:00:24; LR: 1.000e-03; loss: 0.119164; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:27:12,452: [Epochs: 18 Iter: 14000] Elasped: 3:58:22; ETA: 2:59:31; LR: 1.000e-03; loss: 0.118983; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:28:01,277: [Epochs: 18 Iter: 14050] Elasped: 3:59:11; ETA: 2:58:38; LR: 1.000e-03; loss: 0.118815; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:28:50,408: [Epochs: 18 Iter: 14100] Elasped: 4:00:00; ETA: 2:57:46; LR: 1.000e-03; loss: 0.118640; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:29:39,213: [Epochs: 18 Iter: 14150] Elasped: 4:00:49; ETA: 2:56:53; LR: 1.000e-03; loss: 0.118433; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:30:28,192: [Epochs: 18 Iter: 14200] Elasped: 4:01:38; ETA: 2:56:01; LR: 1.000e-03; loss: 0.118297; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:31:17,225: [Epochs: 18 Iter: 14250] Elasped: 4:02:27; ETA: 2:55:08; LR: 1.000e-03; loss: 0.118129; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:32:05,942: [Epochs: 18 Iter: 14300] Elasped: 4:03:15; ETA: 2:54:15; LR: 1.000e-03; loss: 0.117968; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:32:54,820: [Epochs: 18 Iter: 14350] Elasped: 4:04:04; ETA: 2:53:22; LR: 1.000e-03; loss: 0.117811; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:33:43,677: [Epochs: 18 Iter: 14400] Elasped: 4:04:53; ETA: 2:52:30; LR: 1.000e-03; loss: 0.117617; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:34:32,283: [Epochs: 18 Iter: 14450] Elasped: 4:05:42; ETA: 2:51:37; LR: 1.000e-03; loss: 0.117436; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:35:21,042: [Epochs: 18 Iter: 14500] Elasped: 4:06:31; ETA: 2:50:45; LR: 1.000e-03; loss: 0.117242; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:36:10,017: [Epochs: 18 Iter: 14550] Elasped: 4:07:20; ETA: 2:49:53; LR: 1.000e-03; loss: 0.117097; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:37:01,948: [Epochs: 19 Iter: 14600] Elasped: 4:08:11; ETA: 2:49:02; LR: 1.000e-03; loss: 0.116927; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:37:50,603: [Epochs: 19 Iter: 14650] Elasped: 4:09:00; ETA: 2:48:09; LR: 1.000e-03; loss: 0.116758; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:38:39,283: [Epochs: 19 Iter: 14700] Elasped: 4:09:49; ETA: 2:47:17; LR: 1.000e-03; loss: 0.116584; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:39:03,499: Validating...
+2025-04-02 12:40:56,691: 
+Overall Acc: 0.970342
+Mean Acc: 0.928758
+FreqW Acc: 0.946750
+Mean IoU: 0.841382
+Class IoU/Acc:
+\aeroplane: 0.9388 (miou) , 0.9790 (acc) 
+\bicycle: 0.4535 (miou) , 0.9385 (acc) 
+\bird: 0.9539 (miou) , 0.9782 (acc) 
+\boat: 0.7806 (miou) , 0.9159 (acc) 
+\bottle: 0.8873 (miou) , 0.9559 (acc) 
+\bus: 0.9376 (miou) , 0.9678 (acc) 
+\car: 0.8955 (miou) , 0.9679 (acc) 
+\cat: 0.9640 (miou) , 0.9809 (acc) 
+\chair: 0.5272 (miou) , 0.5901 (acc) 
+\cow: 0.9535 (miou) , 0.9640 (acc) 
+
+2025-04-02 12:41:21,429: [Epochs: 19 Iter: 14750] Elasped: 4:12:31; ETA: 2:47:40; LR: 1.000e-03; loss: 0.116443; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:42:10,153: [Epochs: 19 Iter: 14800] Elasped: 4:13:20; ETA: 2:46:47; LR: 1.000e-03; loss: 0.116305; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:42:59,016: [Epochs: 19 Iter: 14850] Elasped: 4:14:09; ETA: 2:45:54; LR: 1.000e-03; loss: 0.116182; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:43:48,032: [Epochs: 19 Iter: 14900] Elasped: 4:14:58; ETA: 2:45:01; LR: 1.000e-03; loss: 0.116056; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:44:36,755: [Epochs: 19 Iter: 14950] Elasped: 4:15:46; ETA: 2:44:08; LR: 1.000e-03; loss: 0.115904; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:45:25,670: [Epochs: 19 Iter: 15000] Elasped: 4:16:35; ETA: 2:43:15; LR: 1.000e-03; loss: 0.115709; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:46:14,434: [Epochs: 19 Iter: 15050] Elasped: 4:17:24; ETA: 2:42:22; LR: 1.000e-03; loss: 0.115559; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:47:03,045: [Epochs: 19 Iter: 15100] Elasped: 4:18:13; ETA: 2:41:29; LR: 1.000e-03; loss: 0.115423; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:47:51,885: [Epochs: 19 Iter: 15150] Elasped: 4:19:01; ETA: 2:40:36; LR: 1.000e-03; loss: 0.115261; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:48:40,746: [Epochs: 19 Iter: 15200] Elasped: 4:19:50; ETA: 2:39:43; LR: 1.000e-03; loss: 0.115078; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:49:29,593: [Epochs: 19 Iter: 15250] Elasped: 4:20:39; ETA: 2:38:51; LR: 1.000e-03; loss: 0.114934; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:50:18,325: [Epochs: 19 Iter: 15300] Elasped: 4:21:28; ETA: 2:37:58; LR: 1.000e-03; loss: 0.114779; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:51:10,147: [Epochs: 20 Iter: 15350] Elasped: 4:22:20; ETA: 2:37:07; LR: 1.000e-03; loss: 0.114651; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:51:59,236: [Epochs: 20 Iter: 15400] Elasped: 4:23:09; ETA: 2:36:14; LR: 1.000e-03; loss: 0.114482; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:52:48,053: [Epochs: 20 Iter: 15450] Elasped: 4:23:58; ETA: 2:35:22; LR: 1.000e-03; loss: 0.114307; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:53:37,029: [Epochs: 20 Iter: 15500] Elasped: 4:24:47; ETA: 2:34:29; LR: 1.000e-03; loss: 0.114149; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:54:25,875: [Epochs: 20 Iter: 15550] Elasped: 4:25:35; ETA: 2:33:36; LR: 1.000e-03; loss: 0.114014; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:55:14,781: [Epochs: 20 Iter: 15600] Elasped: 4:26:24; ETA: 2:32:44; LR: 1.000e-03; loss: 0.113872; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:56:03,600: [Epochs: 20 Iter: 15650] Elasped: 4:27:13; ETA: 2:31:51; LR: 1.000e-03; loss: 0.113701; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:56:52,102: [Epochs: 20 Iter: 15700] Elasped: 4:28:02; ETA: 2:30:59; LR: 1.000e-03; loss: 0.113666; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:57:40,813: [Epochs: 20 Iter: 15750] Elasped: 4:28:50; ETA: 2:30:06; LR: 1.000e-03; loss: 0.113535; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:58:29,925: [Epochs: 20 Iter: 15800] Elasped: 4:29:39; ETA: 2:29:13; LR: 1.000e-03; loss: 0.113395; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 12:59:18,584: [Epochs: 20 Iter: 15850] Elasped: 4:30:28; ETA: 2:28:21; LR: 1.000e-03; loss: 0.113234; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:00:07,571: [Epochs: 20 Iter: 15900] Elasped: 4:31:17; ETA: 2:27:28; LR: 1.000e-03; loss: 0.113122; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:00:56,324: [Epochs: 20 Iter: 15950] Elasped: 4:32:06; ETA: 2:26:36; LR: 1.000e-03; loss: 0.112984; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:01:45,532: [Epochs: 20 Iter: 16000] Elasped: 4:32:55; ETA: 2:25:44; LR: 1.000e-03; loss: 0.112859; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:02:34,281: [Epochs: 20 Iter: 16050] Elasped: 4:33:44; ETA: 2:24:51; LR: 1.000e-03; loss: 0.112745; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:03:22,869: [Epochs: 20 Iter: 16100] Elasped: 4:34:32; ETA: 2:23:59; LR: 1.000e-03; loss: 0.112626; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:04:15,125: [Epochs: 21 Iter: 16150] Elasped: 4:35:25; ETA: 2:23:08; LR: 1.000e-03; loss: 0.112479; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:05:04,078: [Epochs: 21 Iter: 16200] Elasped: 4:36:14; ETA: 2:22:16; LR: 1.000e-03; loss: 0.112336; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:05:53,123: [Epochs: 21 Iter: 16250] Elasped: 4:37:03; ETA: 2:21:24; LR: 1.000e-03; loss: 0.112202; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:06:41,995: [Epochs: 21 Iter: 16300] Elasped: 4:37:51; ETA: 2:20:31; LR: 1.000e-03; loss: 0.112082; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:07:31,026: [Epochs: 21 Iter: 16350] Elasped: 4:38:41; ETA: 2:19:39; LR: 1.000e-03; loss: 0.111946; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:08:19,665: [Epochs: 21 Iter: 16400] Elasped: 4:39:29; ETA: 2:18:47; LR: 1.000e-03; loss: 0.111772; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:09:08,505: [Epochs: 21 Iter: 16450] Elasped: 4:40:18; ETA: 2:17:55; LR: 1.000e-03; loss: 0.111619; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:09:57,328: [Epochs: 21 Iter: 16500] Elasped: 4:41:07; ETA: 2:17:02; LR: 1.000e-03; loss: 0.111465; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:10:46,234: [Epochs: 21 Iter: 16550] Elasped: 4:41:56; ETA: 2:16:10; LR: 1.000e-03; loss: 0.111312; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:11:35,107: [Epochs: 21 Iter: 16600] Elasped: 4:42:45; ETA: 2:15:18; LR: 1.000e-03; loss: 0.111151; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:12:24,201: [Epochs: 21 Iter: 16650] Elasped: 4:43:34; ETA: 2:14:26; LR: 1.000e-03; loss: 0.111002; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:13:12,842: [Epochs: 21 Iter: 16700] Elasped: 4:44:22; ETA: 2:13:34; LR: 1.000e-03; loss: 0.110914; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:14:01,655: [Epochs: 21 Iter: 16750] Elasped: 4:45:11; ETA: 2:12:41; LR: 1.000e-03; loss: 0.110808; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:14:50,504: [Epochs: 21 Iter: 16800] Elasped: 4:46:00; ETA: 2:11:49; LR: 1.000e-03; loss: 0.110690; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:15:39,539: [Epochs: 21 Iter: 16850] Elasped: 4:46:49; ETA: 2:10:57; LR: 1.000e-03; loss: 0.110587; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:16:30,741: [Epochs: 22 Iter: 16900] Elasped: 4:47:40; ETA: 2:10:06; LR: 1.000e-03; loss: 0.110631; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:17:19,422: [Epochs: 22 Iter: 16950] Elasped: 4:48:29; ETA: 2:09:14; LR: 1.000e-03; loss: 0.110594; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:18:08,250: [Epochs: 22 Iter: 17000] Elasped: 4:49:18; ETA: 2:08:22; LR: 1.000e-03; loss: 0.110595; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:18:56,925: [Epochs: 22 Iter: 17050] Elasped: 4:50:06; ETA: 2:07:30; LR: 1.000e-03; loss: 0.110511; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:19:45,611: [Epochs: 22 Iter: 17100] Elasped: 4:50:55; ETA: 2:06:38; LR: 1.000e-03; loss: 0.110491; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:20:34,298: [Epochs: 22 Iter: 17150] Elasped: 4:51:44; ETA: 2:05:46; LR: 1.000e-03; loss: 0.110473; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:21:02,250: Validating...
+2025-04-02 13:22:55,217: 
+Overall Acc: 0.958128
+Mean Acc: 0.930244
+FreqW Acc: 0.927038
+Mean IoU: 0.802932
+Class IoU/Acc:
+\aeroplane: 0.9269 (miou) , 0.9660 (acc) 
+\bicycle: 0.4169 (miou) , 0.9744 (acc) 
+\bird: 0.9207 (miou) , 0.9693 (acc) 
+\boat: 0.7070 (miou) , 0.9364 (acc) 
+\bottle: 0.8182 (miou) , 0.8803 (acc) 
+\bus: 0.9242 (miou) , 0.9750 (acc) 
+\car: 0.8476 (miou) , 0.9652 (acc) 
+\cat: 0.9115 (miou) , 0.9736 (acc) 
+\chair: 0.5371 (miou) , 0.7458 (acc) 
+\cow: 0.8724 (miou) , 0.8828 (acc) 
+
+2025-04-02 13:23:16,115: [Epochs: 22 Iter: 17200] Elasped: 4:54:26; ETA: 2:05:42; LR: 1.000e-03; loss: 0.110406; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:24:05,072: [Epochs: 22 Iter: 17250] Elasped: 4:55:15; ETA: 2:04:50; LR: 1.000e-03; loss: 0.110357; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:24:53,955: [Epochs: 22 Iter: 17300] Elasped: 4:56:03; ETA: 2:03:57; LR: 1.000e-03; loss: 0.110221; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:25:42,721: [Epochs: 22 Iter: 17350] Elasped: 4:56:52; ETA: 2:03:05; LR: 1.000e-03; loss: 0.110141; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:26:31,498: [Epochs: 22 Iter: 17400] Elasped: 4:57:41; ETA: 2:02:13; LR: 1.000e-03; loss: 0.110028; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:27:20,207: [Epochs: 22 Iter: 17450] Elasped: 4:58:30; ETA: 2:01:21; LR: 1.000e-03; loss: 0.109978; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:28:08,882: [Epochs: 22 Iter: 17500] Elasped: 4:59:18; ETA: 2:00:28; LR: 1.000e-03; loss: 0.109851; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:28:57,699: [Epochs: 22 Iter: 17550] Elasped: 5:00:07; ETA: 1:59:36; LR: 1.000e-03; loss: 0.109731; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:29:46,092: [Epochs: 22 Iter: 17600] Elasped: 5:00:56; ETA: 1:58:43; LR: 1.000e-03; loss: 0.109606; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:30:37,084: [Epochs: 23 Iter: 17650] Elasped: 5:01:47; ETA: 1:57:52; LR: 1.000e-03; loss: 0.109490; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:31:25,992: [Epochs: 23 Iter: 17700] Elasped: 5:02:35; ETA: 1:56:59; LR: 1.000e-03; loss: 0.109357; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:32:14,859: [Epochs: 23 Iter: 17750] Elasped: 5:03:24; ETA: 1:56:07; LR: 1.000e-03; loss: 0.109248; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:33:03,710: [Epochs: 23 Iter: 17800] Elasped: 5:04:13; ETA: 1:55:15; LR: 1.000e-03; loss: 0.109145; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:33:52,696: [Epochs: 23 Iter: 17850] Elasped: 5:05:02; ETA: 1:54:23; LR: 1.000e-03; loss: 0.109041; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:34:41,361: [Epochs: 23 Iter: 17900] Elasped: 5:05:51; ETA: 1:53:31; LR: 1.000e-03; loss: 0.109010; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:35:30,178: [Epochs: 23 Iter: 17950] Elasped: 5:06:40; ETA: 1:52:39; LR: 1.000e-03; loss: 0.108877; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:36:19,028: [Epochs: 23 Iter: 18000] Elasped: 5:07:29; ETA: 1:51:47; LR: 1.000e-03; loss: 0.108779; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:37:08,102: [Epochs: 23 Iter: 18050] Elasped: 5:08:18; ETA: 1:50:55; LR: 1.000e-03; loss: 0.108683; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:37:56,705: [Epochs: 23 Iter: 18100] Elasped: 5:09:06; ETA: 1:50:02; LR: 1.000e-03; loss: 0.108583; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:38:45,494: [Epochs: 23 Iter: 18150] Elasped: 5:09:55; ETA: 1:49:10; LR: 1.000e-03; loss: 0.108449; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:39:34,095: [Epochs: 23 Iter: 18200] Elasped: 5:10:44; ETA: 1:48:18; LR: 1.000e-03; loss: 0.108319; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:40:22,726: [Epochs: 23 Iter: 18250] Elasped: 5:11:32; ETA: 1:47:26; LR: 1.000e-03; loss: 0.108204; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:41:11,687: [Epochs: 23 Iter: 18300] Elasped: 5:12:21; ETA: 1:46:34; LR: 1.000e-03; loss: 0.108096; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:42:00,554: [Epochs: 23 Iter: 18350] Elasped: 5:13:10; ETA: 1:45:42; LR: 1.000e-03; loss: 0.108008; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:42:49,565: [Epochs: 23 Iter: 18400] Elasped: 5:13:59; ETA: 1:44:50; LR: 1.000e-03; loss: 0.107910; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:43:41,267: [Epochs: 24 Iter: 18450] Elasped: 5:14:51; ETA: 1:43:59; LR: 1.000e-03; loss: 0.107826; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:44:29,771: [Epochs: 24 Iter: 18500] Elasped: 5:15:39; ETA: 1:43:07; LR: 1.000e-03; loss: 0.107759; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:45:18,619: [Epochs: 24 Iter: 18550] Elasped: 5:16:28; ETA: 1:42:15; LR: 1.000e-03; loss: 0.107647; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:46:07,273: [Epochs: 24 Iter: 18600] Elasped: 5:17:17; ETA: 1:41:23; LR: 1.000e-03; loss: 0.107529; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:46:56,133: [Epochs: 24 Iter: 18650] Elasped: 5:18:06; ETA: 1:40:31; LR: 1.000e-03; loss: 0.107415; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:47:44,867: [Epochs: 24 Iter: 18700] Elasped: 5:18:54; ETA: 1:39:39; LR: 1.000e-03; loss: 0.107293; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:48:33,649: [Epochs: 24 Iter: 18750] Elasped: 5:19:43; ETA: 1:38:47; LR: 1.000e-03; loss: 0.107186; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:49:22,779: [Epochs: 24 Iter: 18800] Elasped: 5:20:32; ETA: 1:37:55; LR: 1.000e-03; loss: 0.107079; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:50:11,662: [Epochs: 24 Iter: 18850] Elasped: 5:21:21; ETA: 1:37:04; LR: 1.000e-03; loss: 0.106964; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:51:00,386: [Epochs: 24 Iter: 18900] Elasped: 5:22:10; ETA: 1:36:12; LR: 1.000e-03; loss: 0.106879; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:51:49,354: [Epochs: 24 Iter: 18950] Elasped: 5:22:59; ETA: 1:35:20; LR: 1.000e-03; loss: 0.106817; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:52:38,406: [Epochs: 24 Iter: 19000] Elasped: 5:23:48; ETA: 1:34:28; LR: 1.000e-03; loss: 0.106728; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:53:27,213: [Epochs: 24 Iter: 19050] Elasped: 5:24:37; ETA: 1:33:37; LR: 1.000e-03; loss: 0.106635; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:54:16,389: [Epochs: 24 Iter: 19100] Elasped: 5:25:26; ETA: 1:32:45; LR: 1.000e-03; loss: 0.106567; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:55:05,085: [Epochs: 24 Iter: 19150] Elasped: 5:26:15; ETA: 1:31:53; LR: 1.000e-03; loss: 0.106567; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:55:56,619: [Epochs: 25 Iter: 19200] Elasped: 5:27:06; ETA: 1:31:02; LR: 1.000e-03; loss: 0.106492; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:56:45,415: [Epochs: 25 Iter: 19250] Elasped: 5:27:55; ETA: 1:30:10; LR: 1.000e-03; loss: 0.106394; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:57:34,227: [Epochs: 25 Iter: 19300] Elasped: 5:28:44; ETA: 1:29:19; LR: 1.000e-03; loss: 0.106289; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:58:22,937: [Epochs: 25 Iter: 19350] Elasped: 5:29:32; ETA: 1:28:27; LR: 1.000e-03; loss: 0.106204; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 13:59:11,750: [Epochs: 25 Iter: 19400] Elasped: 5:30:21; ETA: 1:27:35; LR: 1.000e-03; loss: 0.106122; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:00:00,722: [Epochs: 25 Iter: 19450] Elasped: 5:31:10; ETA: 1:26:43; LR: 1.000e-03; loss: 0.106040; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:00:49,384: [Epochs: 25 Iter: 19500] Elasped: 5:31:59; ETA: 1:25:52; LR: 1.000e-03; loss: 0.105926; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:01:38,050: [Epochs: 25 Iter: 19550] Elasped: 5:32:48; ETA: 1:25:00; LR: 1.000e-03; loss: 0.105837; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:02:26,960: [Epochs: 25 Iter: 19600] Elasped: 5:33:36; ETA: 1:24:08; LR: 1.000e-03; loss: 0.105750; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:02:58,528: Validating...
+2025-04-02 14:04:51,569: 
+Overall Acc: 0.969257
+Mean Acc: 0.934945
+FreqW Acc: 0.945373
+Mean IoU: 0.841153
+Class IoU/Acc:
+\aeroplane: 0.9454 (miou) , 0.9737 (acc) 
+\bicycle: 0.4588 (miou) , 0.9164 (acc) 
+\bird: 0.9405 (miou) , 0.9565 (acc) 
+\boat: 0.7566 (miou) , 0.9198 (acc) 
+\bottle: 0.8669 (miou) , 0.9233 (acc) 
+\bus: 0.9454 (miou) , 0.9802 (acc) 
+\car: 0.9100 (miou) , 0.9612 (acc) 
+\cat: 0.9513 (miou) , 0.9843 (acc) 
+\chair: 0.5658 (miou) , 0.7299 (acc) 
+\cow: 0.9502 (miou) , 0.9642 (acc) 
+
+2025-04-02 14:05:08,665: [Epochs: 25 Iter: 19650] Elasped: 5:36:18; ETA: 1:23:45; LR: 1.000e-03; loss: 0.105655; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:05:57,491: [Epochs: 25 Iter: 19700] Elasped: 5:37:07; ETA: 1:22:53; LR: 1.000e-03; loss: 0.105568; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:06:46,331: [Epochs: 25 Iter: 19750] Elasped: 5:37:56; ETA: 1:22:01; LR: 1.000e-03; loss: 0.105475; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:07:35,236: [Epochs: 25 Iter: 19800] Elasped: 5:38:45; ETA: 1:21:09; LR: 1.000e-03; loss: 0.105483; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:08:24,210: [Epochs: 25 Iter: 19850] Elasped: 5:39:34; ETA: 1:20:17; LR: 1.000e-03; loss: 0.105460; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:09:12,882: [Epochs: 25 Iter: 19900] Elasped: 5:40:22; ETA: 1:19:25; LR: 1.000e-03; loss: 0.105384; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:10:04,522: [Epochs: 26 Iter: 19950] Elasped: 5:41:14; ETA: 1:18:34; LR: 1.000e-03; loss: 0.105286; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:10:53,466: [Epochs: 26 Iter: 20000] Elasped: 5:42:03; ETA: 1:17:42; LR: 1.000e-03; loss: 0.105208; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:11:42,320: [Epochs: 26 Iter: 20050] Elasped: 5:42:52; ETA: 1:16:51; LR: 1.000e-03; loss: 0.105100; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:12:31,405: [Epochs: 26 Iter: 20100] Elasped: 5:43:41; ETA: 1:15:59; LR: 1.000e-03; loss: 0.105012; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:13:20,037: [Epochs: 26 Iter: 20150] Elasped: 5:44:30; ETA: 1:15:07; LR: 1.000e-03; loss: 0.104913; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:14:09,085: [Epochs: 26 Iter: 20200] Elasped: 5:45:19; ETA: 1:14:15; LR: 1.000e-03; loss: 0.104832; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:14:57,995: [Epochs: 26 Iter: 20250] Elasped: 5:46:07; ETA: 1:13:23; LR: 1.000e-03; loss: 0.104742; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:15:46,865: [Epochs: 26 Iter: 20300] Elasped: 5:46:56; ETA: 1:12:31; LR: 1.000e-03; loss: 0.104647; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:16:35,694: [Epochs: 26 Iter: 20350] Elasped: 5:47:45; ETA: 1:11:40; LR: 1.000e-03; loss: 0.104543; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:17:24,301: [Epochs: 26 Iter: 20400] Elasped: 5:48:34; ETA: 1:10:48; LR: 1.000e-03; loss: 0.104431; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:18:12,922: [Epochs: 26 Iter: 20450] Elasped: 5:49:22; ETA: 1:09:56; LR: 1.000e-03; loss: 0.104320; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:19:01,825: [Epochs: 26 Iter: 20500] Elasped: 5:50:11; ETA: 1:09:04; LR: 1.000e-03; loss: 0.104212; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:19:50,734: [Epochs: 26 Iter: 20550] Elasped: 5:51:00; ETA: 1:08:13; LR: 1.000e-03; loss: 0.104121; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:20:39,610: [Epochs: 26 Iter: 20600] Elasped: 5:51:49; ETA: 1:07:21; LR: 1.000e-03; loss: 0.104014; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:21:28,517: [Epochs: 26 Iter: 20650] Elasped: 5:52:38; ETA: 1:06:29; LR: 1.000e-03; loss: 0.103909; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:22:17,147: [Epochs: 26 Iter: 20700] Elasped: 5:53:27; ETA: 1:05:38; LR: 1.000e-03; loss: 0.103849; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:23:09,062: [Epochs: 27 Iter: 20750] Elasped: 5:54:19; ETA: 1:04:47; LR: 1.000e-03; loss: 0.103759; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:23:58,056: [Epochs: 27 Iter: 20800] Elasped: 5:55:08; ETA: 1:03:55; LR: 1.000e-03; loss: 0.103687; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:24:46,786: [Epochs: 27 Iter: 20850] Elasped: 5:55:56; ETA: 1:03:03; LR: 1.000e-03; loss: 0.103598; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:25:35,552: [Epochs: 27 Iter: 20900] Elasped: 5:56:45; ETA: 1:02:12; LR: 1.000e-03; loss: 0.103507; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:26:24,481: [Epochs: 27 Iter: 20950] Elasped: 5:57:34; ETA: 1:01:20; LR: 1.000e-03; loss: 0.103404; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:27:13,163: [Epochs: 27 Iter: 21000] Elasped: 5:58:23; ETA: 1:00:28; LR: 1.000e-03; loss: 0.103325; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:28:01,737: [Epochs: 27 Iter: 21050] Elasped: 5:59:11; ETA: 0:59:37; LR: 1.000e-03; loss: 0.103227; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:28:50,326: [Epochs: 27 Iter: 21100] Elasped: 6:00:00; ETA: 0:58:45; LR: 1.000e-03; loss: 0.103142; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:29:39,243: [Epochs: 27 Iter: 21150] Elasped: 6:00:49; ETA: 0:57:54; LR: 1.000e-03; loss: 0.103097; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:30:27,754: [Epochs: 27 Iter: 21200] Elasped: 6:01:37; ETA: 0:57:02; LR: 1.000e-03; loss: 0.103081; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:31:16,271: [Epochs: 27 Iter: 21250] Elasped: 6:02:26; ETA: 0:56:10; LR: 1.000e-03; loss: 0.103059; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:32:05,000: [Epochs: 27 Iter: 21300] Elasped: 6:03:15; ETA: 0:55:19; LR: 1.000e-03; loss: 0.103009; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:32:53,851: [Epochs: 27 Iter: 21350] Elasped: 6:04:03; ETA: 0:54:27; LR: 1.000e-03; loss: 0.102944; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:33:42,523: [Epochs: 27 Iter: 21400] Elasped: 6:04:52; ETA: 0:53:36; LR: 1.000e-03; loss: 0.102865; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:34:31,464: [Epochs: 27 Iter: 21450] Elasped: 6:05:41; ETA: 0:52:44; LR: 1.000e-03; loss: 0.102764; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:35:22,601: [Epochs: 28 Iter: 21500] Elasped: 6:06:32; ETA: 0:51:53; LR: 1.000e-03; loss: 0.102691; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:36:11,422: [Epochs: 28 Iter: 21550] Elasped: 6:07:21; ETA: 0:51:02; LR: 1.000e-03; loss: 0.102592; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:37:00,451: [Epochs: 28 Iter: 21600] Elasped: 6:08:10; ETA: 0:50:10; LR: 1.000e-03; loss: 0.102498; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:37:49,429: [Epochs: 28 Iter: 21650] Elasped: 6:08:59; ETA: 0:49:19; LR: 1.000e-03; loss: 0.102406; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:38:38,027: [Epochs: 28 Iter: 21700] Elasped: 6:09:48; ETA: 0:48:27; LR: 1.000e-03; loss: 0.102305; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:39:26,854: [Epochs: 28 Iter: 21750] Elasped: 6:10:36; ETA: 0:47:36; LR: 1.000e-03; loss: 0.102209; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:40:15,585: [Epochs: 28 Iter: 21800] Elasped: 6:11:25; ETA: 0:46:45; LR: 1.000e-03; loss: 0.102091; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:41:04,405: [Epochs: 28 Iter: 21850] Elasped: 6:12:14; ETA: 0:45:53; LR: 1.000e-03; loss: 0.101983; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:41:53,571: [Epochs: 28 Iter: 21900] Elasped: 6:13:03; ETA: 0:45:02; LR: 1.000e-03; loss: 0.101879; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:42:42,494: [Epochs: 28 Iter: 21950] Elasped: 6:13:52; ETA: 0:44:10; LR: 1.000e-03; loss: 0.101787; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:43:31,299: [Epochs: 28 Iter: 22000] Elasped: 6:14:41; ETA: 0:43:19; LR: 1.000e-03; loss: 0.101693; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:44:20,280: [Epochs: 28 Iter: 22050] Elasped: 6:15:30; ETA: 0:42:28; LR: 1.000e-03; loss: 0.101585; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:44:55,844: Validating...
+2025-04-02 14:46:48,855: 
+Overall Acc: 0.967196
+Mean Acc: 0.929075
+FreqW Acc: 0.942308
+Mean IoU: 0.830002
+Class IoU/Acc:
+\aeroplane: 0.9331 (miou) , 0.9792 (acc) 
+\bicycle: 0.4453 (miou) , 0.9274 (acc) 
+\bird: 0.9472 (miou) , 0.9712 (acc) 
+\boat: 0.7622 (miou) , 0.9450 (acc) 
+\bottle: 0.8305 (miou) , 0.8818 (acc) 
+\bus: 0.9501 (miou) , 0.9738 (acc) 
+\car: 0.8879 (miou) , 0.9535 (acc) 
+\cat: 0.9589 (miou) , 0.9826 (acc) 
+\chair: 0.5077 (miou) , 0.6702 (acc) 
+\cow: 0.9471 (miou) , 0.9608 (acc) 
+
+2025-04-02 14:47:02,156: [Epochs: 28 Iter: 22100] Elasped: 6:18:12; ETA: 0:41:49; LR: 1.000e-03; loss: 0.101485; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:47:50,919: [Epochs: 28 Iter: 22150] Elasped: 6:19:00; ETA: 0:40:57; LR: 1.000e-03; loss: 0.101396; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:48:39,780: [Epochs: 28 Iter: 22200] Elasped: 6:19:49; ETA: 0:40:06; LR: 1.000e-03; loss: 0.101300; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:49:30,632: [Epochs: 29 Iter: 22250] Elasped: 6:20:40; ETA: 0:39:14; LR: 1.000e-03; loss: 0.101215; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:50:19,593: [Epochs: 29 Iter: 22300] Elasped: 6:21:29; ETA: 0:38:23; LR: 1.000e-03; loss: 0.101125; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:51:08,444: [Epochs: 29 Iter: 22350] Elasped: 6:22:18; ETA: 0:37:31; LR: 1.000e-03; loss: 0.101037; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:51:56,807: [Epochs: 29 Iter: 22400] Elasped: 6:23:06; ETA: 0:36:40; LR: 1.000e-03; loss: 0.100935; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:52:45,939: [Epochs: 29 Iter: 22450] Elasped: 6:23:55; ETA: 0:35:48; LR: 1.000e-03; loss: 0.100846; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:53:34,600: [Epochs: 29 Iter: 22500] Elasped: 6:24:44; ETA: 0:34:57; LR: 1.000e-03; loss: 0.100746; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:54:23,487: [Epochs: 29 Iter: 22550] Elasped: 6:25:33; ETA: 0:34:05; LR: 1.000e-03; loss: 0.100673; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:55:12,113: [Epochs: 29 Iter: 22600] Elasped: 6:26:22; ETA: 0:33:14; LR: 1.000e-03; loss: 0.100612; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:56:00,817: [Epochs: 29 Iter: 22650] Elasped: 6:27:10; ETA: 0:32:22; LR: 1.000e-03; loss: 0.100526; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:56:49,661: [Epochs: 29 Iter: 22700] Elasped: 6:27:59; ETA: 0:31:31; LR: 1.000e-03; loss: 0.100467; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:57:38,457: [Epochs: 29 Iter: 22750] Elasped: 6:28:48; ETA: 0:30:39; LR: 1.000e-03; loss: 0.100402; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:58:27,504: [Epochs: 29 Iter: 22800] Elasped: 6:29:37; ETA: 0:29:48; LR: 1.000e-03; loss: 0.100320; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 14:59:16,356: [Epochs: 29 Iter: 22850] Elasped: 6:30:26; ETA: 0:28:56; LR: 1.000e-03; loss: 0.100266; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:00:05,326: [Epochs: 29 Iter: 22900] Elasped: 6:31:15; ETA: 0:28:05; LR: 1.000e-03; loss: 0.100174; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:00:54,294: [Epochs: 29 Iter: 22950] Elasped: 6:32:04; ETA: 0:27:13; LR: 1.000e-03; loss: 0.100101; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:01:43,317: [Epochs: 29 Iter: 23000] Elasped: 6:32:53; ETA: 0:26:22; LR: 1.000e-03; loss: 0.100021; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:02:34,522: [Epochs: 30 Iter: 23050] Elasped: 6:33:44; ETA: 0:25:31; LR: 1.000e-03; loss: 0.099933; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:03:23,594: [Epochs: 30 Iter: 23100] Elasped: 6:34:33; ETA: 0:24:39; LR: 1.000e-03; loss: 0.099823; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:04:12,408: [Epochs: 30 Iter: 23150] Elasped: 6:35:22; ETA: 0:23:48; LR: 1.000e-03; loss: 0.099840; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:05:00,996: [Epochs: 30 Iter: 23200] Elasped: 6:36:10; ETA: 0:22:57; LR: 1.000e-03; loss: 0.099782; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:05:49,833: [Epochs: 30 Iter: 23250] Elasped: 6:36:59; ETA: 0:22:05; LR: 1.000e-03; loss: 0.099718; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:06:38,744: [Epochs: 30 Iter: 23300] Elasped: 6:37:48; ETA: 0:21:14; LR: 1.000e-03; loss: 0.099614; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:07:27,885: [Epochs: 30 Iter: 23350] Elasped: 6:38:37; ETA: 0:20:22; LR: 1.000e-03; loss: 0.099530; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:08:16,615: [Epochs: 30 Iter: 23400] Elasped: 6:39:26; ETA: 0:19:31; LR: 1.000e-03; loss: 0.099445; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:09:05,464: [Epochs: 30 Iter: 23450] Elasped: 6:40:15; ETA: 0:18:40; LR: 1.000e-03; loss: 0.099351; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:09:54,541: [Epochs: 30 Iter: 23500] Elasped: 6:41:04; ETA: 0:17:49; LR: 1.000e-03; loss: 0.099256; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:10:43,432: [Epochs: 30 Iter: 23550] Elasped: 6:41:53; ETA: 0:16:57; LR: 1.000e-03; loss: 0.099155; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:11:32,283: [Epochs: 30 Iter: 23600] Elasped: 6:42:42; ETA: 0:16:06; LR: 1.000e-03; loss: 0.099150; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:12:21,135: [Epochs: 30 Iter: 23650] Elasped: 6:43:31; ETA: 0:15:15; LR: 1.000e-03; loss: 0.099145; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:13:10,432: [Epochs: 30 Iter: 23700] Elasped: 6:44:20; ETA: 0:14:23; LR: 1.000e-03; loss: 0.099108; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:13:59,025: [Epochs: 30 Iter: 23750] Elasped: 6:45:09; ETA: 0:13:32; LR: 1.000e-03; loss: 0.099039; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:14:50,482: [Epochs: 31 Iter: 23800] Elasped: 6:46:00; ETA: 0:12:41; LR: 1.000e-03; loss: 0.098960; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:15:39,084: [Epochs: 31 Iter: 23850] Elasped: 6:46:49; ETA: 0:11:50; LR: 1.000e-03; loss: 0.098933; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:16:27,968: [Epochs: 31 Iter: 23900] Elasped: 6:47:37; ETA: 0:10:59; LR: 1.000e-03; loss: 0.098873; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:17:16,814: [Epochs: 31 Iter: 23950] Elasped: 6:48:26; ETA: 0:10:07; LR: 1.000e-03; loss: 0.098795; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:18:05,627: [Epochs: 31 Iter: 24000] Elasped: 6:49:15; ETA: 0:09:16; LR: 1.000e-03; loss: 0.098712; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:18:54,527: [Epochs: 31 Iter: 24050] Elasped: 6:50:04; ETA: 0:08:25; LR: 1.000e-03; loss: 0.098625; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:19:43,358: [Epochs: 31 Iter: 24100] Elasped: 6:50:53; ETA: 0:07:34; LR: 1.000e-03; loss: 0.098531; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:20:32,309: [Epochs: 31 Iter: 24150] Elasped: 6:51:42; ETA: 0:06:43; LR: 1.000e-03; loss: 0.098461; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:21:21,589: [Epochs: 31 Iter: 24200] Elasped: 6:52:31; ETA: 0:05:51; LR: 1.000e-03; loss: 0.098420; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:22:10,511: [Epochs: 31 Iter: 24250] Elasped: 6:53:20; ETA: 0:05:00; LR: 1.000e-03; loss: 0.098352; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:22:59,135: [Epochs: 31 Iter: 24300] Elasped: 6:54:09; ETA: 0:04:09; LR: 1.000e-03; loss: 0.098279; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:23:47,812: [Epochs: 31 Iter: 24350] Elasped: 6:54:57; ETA: 0:03:18; LR: 1.000e-03; loss: 0.098214; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:24:36,384: [Epochs: 31 Iter: 24400] Elasped: 6:55:46; ETA: 0:02:27; LR: 1.000e-03; loss: 0.098139; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:25:25,321: [Epochs: 31 Iter: 24450] Elasped: 6:56:35; ETA: 0:01:36; LR: 1.000e-03; loss: 0.098053; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:26:14,144: [Epochs: 31 Iter: 24500] Elasped: 6:57:24; ETA: 0:00:44; LR: 1.000e-03; loss: 0.097988; FD_loss: 0.000000; OD_loss: 0.000000
+2025-04-02 15:26:53,443: Validating...
+2025-04-02 15:28:46,879: 
+Overall Acc: 0.967029
+Mean Acc: 0.920309
+FreqW Acc: 0.941175
+Mean IoU: 0.826103
+Class IoU/Acc:
+\aeroplane: 0.9366 (miou) , 0.9695 (acc) 
+\bicycle: 0.4504 (miou) , 0.9356 (acc) 
+\bird: 0.9415 (miou) , 0.9776 (acc) 
+\boat: 0.7403 (miou) , 0.9355 (acc) 
+\bottle: 0.8008 (miou) , 0.8369 (acc) 
+\bus: 0.9388 (miou) , 0.9745 (acc) 
+\car: 0.8884 (miou) , 0.9511 (acc) 
+\cat: 0.9597 (miou) , 0.9819 (acc) 
+\chair: 0.5133 (miou) , 0.6112 (acc) 
+\cow: 0.9578 (miou) , 0.9738 (acc) 
+
+2025-04-02 15:28:52,684: ... Testing Best Model
+2025-04-02 15:32:00,553: 
+Overall Acc: 0.978045
+Mean Acc: 0.943126
+FreqW Acc: 0.960923
+Mean IoU: 0.844991
+Class IoU/Acc:
+\aeroplane: 0.9257 (miou) , 0.9789 (acc) 
+\bicycle: 0.4530 (miou) , 0.9461 (acc) 
+\bird: 0.9367 (miou) , 0.9822 (acc) 
+\boat: 0.7799 (miou) , 0.9262 (acc) 
+\bottle: 0.8925 (miou) , 0.9524 (acc) 
+\bus: 0.9367 (miou) , 0.9681 (acc) 
+\car: 0.8929 (miou) , 0.9631 (acc) 
+\cat: 0.9614 (miou) , 0.9846 (acc) 
+\chair: 0.5950 (miou) , 0.7350 (acc) 
+\cow: 0.9463 (miou) , 0.9548 (acc) 
+
+2025-04-02 15:32:00,554: ...from 1 to 10 : best/test_before_mIoU : 0.832005
+2025-04-02 15:32:00,567: ...from 11 to 10 best/test_after_mIoU : nan
+2025-04-02 15:32:00,568: ...from 1 to 10 : best/test_before_acc : 0.939138
+2025-04-02 15:32:00,568: ...from 11 to 10 best/test_after_acc : nan
