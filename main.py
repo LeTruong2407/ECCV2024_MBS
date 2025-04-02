@@ -63,6 +63,7 @@ def cal_eta(time0, cur_iter, total_iter):
 def setup_logger(filename='test.log'):
     logFormatter = logging.Formatter('%(asctime)s: %(message)s')
     logger = logging.getLogger()
+    logger.handlers.clear()  # Clear existing handlers to avoid duplicates
     logger.setLevel(logging.INFO)
 
     fHandler = logging.FileHandler(filename, mode='w')
@@ -256,7 +257,7 @@ def pre_tune_neST(opts, model, model_prev, train_loader, device, epochs=5):
             base_model.decoder.cls_emb[i].copy_(w.unsqueeze(0))
 
 def train(opts):
-    writer = SummaryWriter('runs/' + str(args.log))
+    writer = SummaryWriter('runs/' + str(args.log) + f'_step_{opts.curr_step}')  # Updated TensorBoard path
     num_workers = 4 * len(opts.gpu_ids)
     
     time0 = datetime.datetime.now().replace(microsecond=0)
@@ -276,7 +277,7 @@ def train(opts):
         ckpt_str = "checkpoints/%s_%s_%s_step_%d_overlap.pth"
     else:
         ckpt_str = "checkpoints/%s_%s_%s_step_%d_disjoint.pth"
-    
+
     if args.local_rank == 0:
         print("==============================================")
         print(f"  task : {opts.task}")
@@ -562,9 +563,7 @@ if __name__ == "__main__":
     
     opts.dataset.batch_size = opts.dataset.batch_size // len(opts.gpu_ids)
 
-    if args.local_rank == 0:
-        setup_logger(filename=str(args.log)+'.log')
-        logging.info('\nconfigs: %s' % opts)
+
 
     start_step = opts.curr_step
     total_step = len(get_tasks(opts.dataset.name, opts.task))
@@ -573,4 +572,8 @@ if __name__ == "__main__":
     dist.init_process_group(backend=args.backend,)
     for step in range(start_step, total_step):
         opts.curr_step = step
+        log_filename = f"{args.log}_step_{opts.curr_step}.log"
+        if args.local_rank == 0:
+            setup_logger(filename=log_filename)
+            logging.info('\nconfigs: %s' % opts)  # Now goes to step-specific file
         train(opts=opts)
