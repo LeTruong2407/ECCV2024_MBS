@@ -11,7 +11,7 @@ train:
   weight_transfer: True 
   distill_args: 25
   backbone: vit_b_16 # mit_b2 or vit_b_16
-  train_epochs: 32
+  train_epochs: 5
   log_iters: 50
   crop_val: True
   loss_type: 'ce_loss'
