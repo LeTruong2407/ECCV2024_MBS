@@ -183,7 +183,7 @@ def pre_tune_neST(opts, model, model_prev, train_loader, device, epochs=5):
 
     # Freeze all parameters except NeST-specific ones
     for param in base_model.parameters():
-        param.requires_grad = False
+        param.requires_grad = True
     for param in base_model_prev.parameters():
         param.requires_grad = False
 
@@ -304,7 +304,7 @@ def train(opts):
         dataset_dict['val'], batch_size=opts.dataset.val_batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
     test_loader = data.DataLoader(
         dataset_dict['test'], batch_size=opts.dataset.val_batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
-    
+                                                                                                                                        
     if opts.curr_step > 0:
         model_prev = Segmenter(
             backbone=opts.train.backbone,
@@ -320,7 +320,9 @@ def train(opts):
                 print(f"{key}: {value.shape}")
         model_prev.load_state_dict(checkpoint if 'model_state' not in checkpoint else checkpoint['model_state'], strict=False)
         model_prev.eval()
-
+    
+        for param in model_prev.parameters():
+            param.requires_grad = False
 # Load step 0 checkpoint into current model
         model.load_state_dict(checkpoint if 'model_state' not in checkpoint else checkpoint['model_state'], strict=False)
         if args.local_rank == 0:
@@ -337,7 +339,7 @@ def train(opts):
             model_prev=model_prev,
             train_loader=train_loader,
             device=device,
-            epochs=1
+            epochs=5
         )
         # Log cls_emb after pre-tuning
         if args.local_rank == 0:
@@ -351,7 +353,7 @@ def train(opts):
             param.requires_grad = True
         for i in range(len(model.decoder.cls_emb) - 1):
             model.decoder.cls_emb[i].requires_grad = False
-
+        model.decoder.cls_emb[-1].requires_grad = True
         # Refresh importance/projection matrices for new total classes
         total_classes = sum(opts.num_classes)
         old_classes = sum(opts.num_classes[:-1])
@@ -447,12 +449,15 @@ def train(opts):
     criterion = torch.nn.CrossEntropyLoss(ignore_index=opts.dataset.ignore_index, reduction='mean').to(device)
     fd_loss = utils.AdaptiveFeatureDistillation(reduction="mean", alpha=1).to(device) if opts.train.MBS else utils.KnowledgeDistillationLoss(reduction="mean", alpha=1.0).to(device)
 
+    #od_loss = utils.LabelGuidedOutputDistillation(reduction="mean", alpha=1.0).to(device)
+    #ortho_loss = utils.OtrthogonalLoss(reduction="mean", classes=target_cls).to(device)
+
     avg_loss = AverageMeter()
     train_loader_iter = iter(train_loader)
     for n_iter in range(max_iters):
         try:
             inputs, labels, _ = next(train_loader_iter)
-        except StopIteration:
+        except:
             train_sampler.set_epoch(cur_epochs)
             train_loader_iter = iter(train_loader)
             inputs, labels, _ = next(train_loader_iter)
@@ -478,18 +483,31 @@ def train(opts):
                     pred_labels,
                     labels
                 )
-                if args.local_rank == 0 and n_iter % 10 == 0:  # Log every 10 iterations
-                    print(f"Iter {n_iter}: pred_labels unique: {torch.unique(pred_labels)}, labels unique: {torch.unique(labels)}, lfd: {lfd.item()}")          
-                HW = int(math.sqrt(patches.shape[1]))
-                label_temp = F.interpolate(labels.unsqueeze(1).float(), size=(HW, HW), mode='nearest').squeeze(1)
-                pred_score_mask = utils.make_scoremap(
-                    model_prev.get_masks(), label_temp, target_cls, bg_label, ignore_index=opts.dataset.ignore_index
-                )
-                pred_scoremap = pred_score_mask.squeeze().reshape(-1, HW*HW)
-                lfd = fd_loss(patches.unsqueeze(1), patches_prev.unsqueeze(1), weights=pred_scoremap.unsqueeze(-1).unsqueeze(1))
+                ## Define object identifier # 3.3
+                if opts.train.MBS:
+                    object_scores = torch.zeros(pred_prob.shape[0], 2, pred_prob.shape[2], pred_prob.shape[3]).to(device)
+                    object_scores[:, 0] = pred_prob[:, 0]
+                    object_scores[:, 1] = torch.sum(pred_prob[:, 1:], dim=1)
+                    labels = torch.where((labels == 0) & (object_scores[:, 0] < object_scores[:, 1]), 
+                                                opts.dataset.ignore_index, 
+                                                labels)
+                    
+                
+                    with torch.no_grad():
+                        mask_origin = model_prev.get_masks()
+                    HW = int(math.sqrt(patches.shape[1]))
+                    label_temp = F.interpolate(labels.unsqueeze(1).float(), size=(HW, HW), mode='nearest').squeeze(1)
+                    pred_score_mask = utils.make_scoremap(mask_origin, label_temp, target_cls, bg_label, ignore_index=opts.dataset.ignore_index)
+                    pred_scoremap = pred_score_mask.squeeze().reshape(-1, HW*HW)
+                    lfd_patches = fd_loss(patches.unsqueeze(1), patches_prev.unsqueeze(1), weights=pred_scoremap.unsqueeze(-1).unsqueeze(1))
+
+                lfd = lfd_patches + fd_loss(cls_seg_feat[:,:-len(target_cls)], cls_seg_feat_prev, weights=1)
+
+                #if opts.train.MBS:
+                #    lod = od_loss(outputs, outputs_prev, origin_labels) * opts.train.distill_args + ortho_loss(cls_token, weight=opts.num_classes[-1]/sum(opts.num_classes))
 
             seg_loss = criterion(outputs, labels.type(torch.long))
-            loss_total = seg_loss + lfd
+            loss_total = seg_loss + lfd 
 
         scaler.scale(loss_total).backward()
         scaler.step(optimizer)
@@ -542,9 +560,12 @@ def train(opts):
         test_score = validate(opts=opts, model=model, loader=test_loader, device=device, metrics=metrics)
         if args.local_rank == 0:
             logging.info(metrics.to_str(test_score))
-            class_iou = list(test_score['Class IoU'].values())
-            class_acc = list(test_score['Class Acc'].values())
-            first_cls = len(get_tasks(opts.dataset.name, opts.task, 0))
+        
+        class_iou = list(test_score['Class IoU'].values())
+        class_acc = list(test_score['Class Acc'].values())
+        first_cls = len(get_tasks(opts.dataset.name, opts.task, 0))
+
+        if args.local_rank == 0:
             logging.info(f"...from 1 to {first_cls-1} : best/test_before_mIoU : %.6f" % np.mean(class_iou[1:first_cls]))
             logging.info(f"...from {first_cls} to {len(class_iou)-1} best/test_after_mIoU : %.6f" % np.mean(class_iou[first_cls:]))
             logging.info(f"...from 1 to {first_cls-1} : best/test_before_acc : %.6f" % np.mean(class_acc[1:first_cls]))
